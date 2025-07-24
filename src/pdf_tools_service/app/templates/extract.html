@@ -4,6 +4,8 @@
 <form id="extract-form" method="post" enctype="multipart/form-data">
     <input type="file" name="file" required>
     <input type="text" name="range" placeholder="Page range (e.g., 1-5)" value="1" title="Pages to extract">
+    <label><input type="checkbox" name="preview" value="1"> Preview</label>
+    <label><input type="checkbox" name="as_images" value="1"> Export as images</label>
     <button type="submit">Extract</button>
 </form>
 <div id="result"></div>

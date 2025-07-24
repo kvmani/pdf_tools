@@ -34,15 +34,26 @@ class ExtractController(BaseController):
 
             file = request.files.get("file")
             range_str = request.form.get("range", "all")
+            as_images = bool(request.form.get("as_images"))
+            preview = bool(request.form.get("preview"))
             if not file:
                 return (
                     jsonify({"success": False, "error": "No file uploaded"}),
                     400,
                 )
             try:
-                output = self.service.process(BytesIO(file.read()), range_str)
-                data = output.getvalue()
-                return jsonify({"success": True, "data": data.hex()})
+                output = self.service.process(
+                    BytesIO(file.read()), range_str, as_images=as_images, preview=preview
+                )
+                if as_images:
+                    data = [img.getvalue().hex() for img in output]
+                    resp = {"success": True, "images": data}
+                else:
+                    data = output.getvalue()
+                    resp = {"success": True, "data": data.hex()}
+                if preview:
+                    resp["preview"] = [img.getvalue().hex() for img in self.service.preview_images]
+                return jsonify(resp)
             except Exception as exc:
                 return jsonify({"success": False, "error": str(exc)}), 400
 

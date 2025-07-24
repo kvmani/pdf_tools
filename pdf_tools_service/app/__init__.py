@@ -1,3 +1,5 @@
+"""Application factory for the PDF Tools service."""
+
 import json
 import os
 from flask import Flask, render_template
@@ -7,6 +9,8 @@ DEFAULT_CONFIG = os.path.join(os.path.dirname(__file__), '..', 'config.json')
 
 
 def create_app(config_path: str = DEFAULT_CONFIG) -> Flask:
+    """Create and configure the Flask application."""
+
     app = Flask(__name__)
     with open(config_path) as cfg:
         config = json.load(cfg)
@@ -20,6 +24,8 @@ def create_app(config_path: str = DEFAULT_CONFIG) -> Flask:
 
     @app.route('/')
     def index():
+        """Render the landing page."""
+
         return render_template('index.html')
 
     return app

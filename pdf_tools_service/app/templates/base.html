@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PDF Tools</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='js/preview.js') }}"></script>
+</head>
+<body>
+<header>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/merge">Merge PDFs</a>
+        <a href="/extract">Extract Pages</a>
+    </nav>
+</header>
+<main>
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>

@@ -34,17 +34,22 @@ class MergeController(BaseController):
             """Handle merge requests and return merged PDF as hex string."""
 
             files: List[Tuple[BytesIO, str]] = []
+            idx = 0
             try:
-                for file_key in request.files:
-                    file = request.files[file_key]
-                    range_key = f"range_{file_key}"
-                    range_str = request.form.get(range_key, "all")
+                while True:
+                    file = request.files.get(f"file{idx}")
                     if not file:
-                        continue
+                        break
+                    range_str = request.form.get(f"range_file{idx}", "all")
                     files.append((BytesIO(file.read()), range_str))
-                output = self.service.process(files)
+                    idx += 1
+
+                order_param = request.form.get("order")
+                order = [int(x) for x in order_param.split(",")] if order_param else None
+                output_name = request.form.get("output_name", "merged.pdf")
+                output = self.service.process(files, order=order, output_name=output_name)
                 data = output.getvalue()
-                return jsonify({"success": True, "data": data.hex()})
+                return jsonify({"success": True, "data": data.hex(), "filename": self.service.output_name})
             except Exception as exc:
                 return jsonify({"success": False, "error": str(exc)}), 400
 

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Extract Pages</h2>
+<form id="extract-form" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" required>
+    <input type="text" name="range" placeholder="Page range (e.g., 1-5)" value="1" title="Pages to extract">
+    <button type="submit">Extract</button>
+</form>
+<div id="result"></div>
+{% endblock %}
+

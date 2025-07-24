@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Merge PDFs</h2>
+<form id="merge-form" method="post" enctype="multipart/form-data">
+    <div id="files"></div>
+    <input type="file" name="file1" multiple required>
+    <input type="text" name="range_file1" placeholder="Page range (e.g., 1-5)" value="all" title="Leave blank for all pages">
+    <button type="submit">Merge</button>
+</form>
+<div id="result"></div>
+<script>
+// Basic client-side preview and validation would go here
+</script>
+{% endblock %}

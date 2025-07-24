@@ -1,0 +1,4 @@
+{
+  "SECRET_KEY": "change-this-secret-key",
+  "MAX_CONTENT_LENGTH": 10485760
+}

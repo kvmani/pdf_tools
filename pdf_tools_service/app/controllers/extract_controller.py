@@ -1,3 +1,5 @@
+"""HTTP endpoints for extracting pages from PDFs."""
+
 from io import BytesIO
 
 from flask import render_template, request, jsonify
@@ -7,23 +9,36 @@ from ..services.extract_service import ExtractService
 
 
 class ExtractController(BaseController):
-    def __init__(self):
-        super().__init__('extract', __name__)
+    """Controller providing routes for page extraction."""
+
+    def __init__(self) -> None:
+        """Create the controller and underlying :class:`ExtractService`."""
+
+        super().__init__("extract", __name__)
         self.service = ExtractService()
 
-    def register(self):
+    def register(self) -> None:
+        """Register ``/extract`` routes on the controller blueprint."""
+
         bp = self.blueprint
 
         @bp.route('/extract', methods=['GET'])
         def form():
-            return render_template('extract.html')
+            """Render the extraction form page."""
+
+            return render_template("extract.html")
 
         @bp.route('/extract', methods=['POST'])
         def extract():
-            file = request.files.get('file')
-            range_str = request.form.get('range', 'all')
+            """Handle extraction requests and return pages as hex string."""
+
+            file = request.files.get("file")
+            range_str = request.form.get("range", "all")
             if not file:
-                return jsonify({"success": False, "error": "No file uploaded"}), 400
+                return (
+                    jsonify({"success": False, "error": "No file uploaded"}),
+                    400,
+                )
             try:
                 output = self.service.process(BytesIO(file.read()), range_str)
                 data = output.getvalue()

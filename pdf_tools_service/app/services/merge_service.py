@@ -11,6 +11,15 @@ class MergeService(PDFService):
     """Service to merge PDF files."""
 
     def process(self, files: Iterable[Tuple[BytesIO, str]]) -> BytesIO:
+        """Merge PDFs into a single stream.
+
+        Parameters
+        ----------
+        files:
+            Iterable of ``(BytesIO, range_str)`` pairs where ``range_str``
+            denotes the user-supplied page range.
+        """
+
         writer = PdfWriter()
         parser = PDFPageParser()
 

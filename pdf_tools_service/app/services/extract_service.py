@@ -10,6 +10,8 @@ class ExtractService(PDFService):
     """Service to extract pages from a PDF."""
 
     def process(self, file_stream: BytesIO, range_str: str) -> BytesIO:
+        """Extract a range of pages from ``file_stream``."""
+
         reader = PdfReader(file_stream)
         parser = PDFPageParser()
         pages = parser.parse(range_str, len(reader.pages))

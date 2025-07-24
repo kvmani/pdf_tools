@@ -1,11 +1,17 @@
+"""Utility for parsing page range strings."""
+
 import re
 from typing import List
 
 
 class PDFPageParser:
+    """Parse user-supplied page ranges."""
+
     RANGE_RE = re.compile(r"^(\d+(?:-\d+)?)(,\d+(?:-\d+)?)*$", re.ASCII)
 
     def parse(self, range_str: str, total_pages: int) -> List[int]:
+        """Return a list of page numbers from a range string."""
+
         if not range_str or range_str.lower() == "all":
             return list(range(1, total_pages + 1))
 

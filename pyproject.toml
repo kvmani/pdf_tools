@@ -14,7 +14,14 @@ dependencies = [
     "PyPDF2",
     "pdf2image",
     "WTForms",
-    "Pillow"
+    "Pillow",
+    "prometheus_client"
+]
+
+[tool.setuptools.package-data]
+pdf_tools_service = [
+    "app/templates/*.html",
+    "app/static/**/*",
 ]
 
 [tool.flask]

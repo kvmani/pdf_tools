@@ -9,9 +9,9 @@
 <body>
 <header>
     <nav>
-        <a href="/">Home</a>
-        <a href="/merge">Merge PDFs</a>
-        <a href="/extract">Extract Pages</a>
+        <a href="{{ url_for('pdf_tools.index') }}">Home</a>
+        <a href="{{ url_for('pdf_tools.merge.form') }}">Merge PDFs</a>
+        <a href="{{ url_for('pdf_tools.extract.form') }}">Extract Pages</a>
     </nav>
 </header>
 <main>

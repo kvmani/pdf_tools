@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Merge PDFs</h2>
-<form id="merge-form" method="post" enctype="multipart/form-data">
+<form id="merge-form" method="post" enctype="multipart/form-data" action="{{ url_for('pdf_tools.merge.merge') }}">
     <div id="files"></div>
     <button type="button" id="add-file">Add File</button>
     <label>Output name: <input type="text" name="output_name" value="merged.pdf"></label>

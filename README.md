@@ -25,11 +25,19 @@ Start the server using the provided script:
 ./src/pdf_tools_service/run.sh
 ```
 
-The server listens on `http://localhost:8000`. Navigate to `/merge` or `/extract` to use the tools. When used alongside `ml_server`, point requests to the same endpoints.
+The server listens on `http://HOST:PORT` (default `0.0.0.0:8000`). Navigate to
+`/pdf_tools/merge` or `/pdf_tools/extract` to use the tools. When integrated
+with `ml_server`, mount the blueprint under the same prefix.
+
+Configuration is loaded from `src/pdf_tools_service/config.json` by default. A
+different path can be provided using the `PDF_TOOLS_CONFIG` environment
+variable or as the first argument to `run.sh` and `setup.sh`.
 
 ## Development
 
 The original documentation describing the project structure and configuration lives in [src/pdf_tools_service/README.md](src/pdf_tools_service/README.md). New features should include matching tests under `tests/`.
+
+For intranet deployment details see [docs/INTRANET_DEPLOYMENT.md](docs/INTRANET_DEPLOYMENT.md).
 
 ## License
 

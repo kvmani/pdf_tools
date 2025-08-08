@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}PDF Tools{% endblock %}
+{% block content %}
+<div class="container text-center">
+    <h1 class="mb-3">PDF Tools</h1>
+    <img src="{{ url_for('static', filename='images/pdf_tools_icon.png') }}" alt="PDF Tools"
+         class="mb-4 app-icon" width="{{ config['TOOLS_ICONS_SIZE'][0] }}" height="{{ config['TOOLS_ICONS_SIZE'][1] }}">
+    <p class="mb-5">This secure internal utility offers two convenient tools: PDF merging and selective page extraction. All operations are performed securely within the intranet. No files are stored, ensuring complete data privacy and security.</p>
+    <div class="row justify-content-center g-4">
+        <div class="col-6 col-md-4 text-center">
+            <a href="{{ url_for('pdf_tools.merge_pdfs') }}" class="icon-link d-inline-flex flex-column align-items-center w-100">
+                <img src="{{ url_for('static', filename='images/merge_pdfs_icon.png') }}" alt="Merge PDFs" class="app-icon mb-2"
+                     width="{{ config['TOOLS_ICONS_SIZE'][0] }}" height="{{ config['TOOLS_ICONS_SIZE'][1] }}">
+                <span class="app-label">Merge PDFs</span>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 text-center">
+            <a href="{{ url_for('pdf_tools.extract_from_pdf') }}" class="icon-link d-inline-flex flex-column align-items-center w-100">
+                <img src="{{ url_for('static', filename='images/extract_from_pdf_icon.png') }}" alt="Extract Pages" class="app-icon mb-2"
+                     width="{{ config['TOOLS_ICONS_SIZE'][0] }}" height="{{ config['TOOLS_ICONS_SIZE'][1] }}">
+                <span class="app-label">Extract Pages</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

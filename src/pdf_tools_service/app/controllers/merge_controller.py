@@ -29,9 +29,10 @@ class MergeController(BaseController):
 
             return render_template("merge.html")
 
+
         @bp.route('/merge', methods=['POST'])
         def merge():
-            """Handle merge requests and return merged PDF as hex string."""
+            """Handle merge requests and return merged PDF as downloadable file."""
 
             files: List[Tuple[BytesIO, str]] = []
             idx = 0
@@ -48,9 +49,16 @@ class MergeController(BaseController):
                 order = [int(x) for x in order_param.split(",")] if order_param else None
                 output_name = request.form.get("output_name", "merged.pdf")
                 output = self.service.process(files, order=order, output_name=output_name)
-                data = output.getvalue()
-                return jsonify({"success": True, "data": data.hex(), "filename": self.service.output_name})
+
+                from flask import send_file
+                output.seek(0)
+                return send_file(
+                    output,
+                    mimetype="application/pdf",
+                    as_attachment=True,
+                    download_name=self.service.output_name
+                )
+
             except Exception as exc:
                 return jsonify({"success": False, "error": str(exc)}), 400
-
 merge_bp = MergeController().blueprint

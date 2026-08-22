@@ -5,6 +5,7 @@
     <title>{% block title %}PDF Tools{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('pdf_tools.static', filename='style.css') }}">
     <script src="{{ url_for('pdf_tools.static', filename='js/pdf.min.js') }}"></script>
+    <script defer src="{{ url_for('pdf_tools.static', filename='js/browser_support.js') }}"></script>
     <script defer src="{{ url_for('pdf_tools.static', filename='js/preview.js') }}"></script>
     <script defer src="{{ url_for('pdf_tools.static', filename='js/extract.js') }}"></script>
 </head>

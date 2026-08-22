@@ -32,8 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(metadataUrl, {method: 'POST', body});
             const data = await response.json();
             if (!response.ok || !data.success) throw new Error(data.error || 'Metadata unavailable');
-            const author = data.author ? ` · ${data.author}` : '';
-            metadata.textContent = `${formatBytes(data.size_bytes)} · ${data.page_count} ${data.page_count === 1 ? 'page' : 'pages'}${author}`;
+            metadata.textContent = `${formatBytes(data.size_bytes)} · ${data.page_count} ${data.page_count === 1 ? 'page' : 'pages'}`;
             item.dataset.pageCount = data.page_count;
         } catch (error) { metadata.textContent = `${formatBytes(file.size)} · metadata unavailable`; }
     }

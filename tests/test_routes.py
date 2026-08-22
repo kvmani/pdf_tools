@@ -18,7 +18,7 @@ def test_workspace_pages_and_metadata_missing_file(client):
     assert b'Merge PDFs' in client.get('/pdf_tools/').data
     merge_page = client.get('/pdf_tools/merge')
     assert merge_page.status_code == 200
-    assert b'first-page previews and metadata' in merge_page.data
+    assert b'file size and page count' in merge_page.data
     assert b'Drag a card by its handle' in merge_page.data
     extract_page = client.get('/pdf_tools/extract')
     assert extract_page.status_code == 200

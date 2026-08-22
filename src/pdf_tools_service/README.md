@@ -12,7 +12,7 @@ can operate standalone.
   upload.
 - **Extract** selected pages from one PDF into a new document.
 - Simple HTML interface with drag‑and‑drop file inputs.
-- First-page previews, file size/page-count metadata, and document title/author details.
+- First-page previews, file size and page-count display.
 - Drag-to-reorder merge cards with explicit page-range controls.
 - RESTful JSON responses so the service can be called from other
   applications.

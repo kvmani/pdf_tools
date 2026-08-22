@@ -49,19 +49,11 @@ def metadata():
     try:
         raw = uploaded.read()
         reader = PdfReader(BytesIO(raw))
-        info = reader.metadata or {}
-        first_page = reader.pages[0] if reader.pages else None
-        box = first_page.mediabox if first_page else None
         return jsonify({
             "success": True,
             "filename": uploaded.filename or "document.pdf",
             "size_bytes": len(raw),
             "page_count": len(reader.pages),
-            "title": info.get("/Title"),
-            "author": info.get("/Author"),
-            "first_page_size": {
-                "width": float(box.width), "height": float(box.height)
-            } if box else None,
         })
     except Exception as exc:
         return jsonify({"success": False, "error": str(exc)}), 400

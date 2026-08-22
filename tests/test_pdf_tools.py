@@ -43,7 +43,7 @@ def test_application_root_config_overrides_and_abstract_contracts(monkeypatch, t
         assert app.after_request_funcs[None][0](make_response('ok')).status_code == 200
 
 
-def test_metadata_reports_size_pages_dimensions_and_document_info():
+def test_metadata_reports_only_size_and_page_count():
     response = pdf_client().post('/pdf_tools/metadata', data={'file': (make_pdf(3, 'Research Pack', 'Dr K V Mani Krishna'), 'pack.pdf')}, content_type='multipart/form-data')
     payload = response.get_json()
     assert response.status_code == 200
@@ -51,9 +51,7 @@ def test_metadata_reports_size_pages_dimensions_and_document_info():
     assert payload['filename'] == 'pack.pdf'
     assert payload['page_count'] == 3
     assert payload['size_bytes'] > 0
-    assert payload['title'] == 'Research Pack'
-    assert payload['author'] == 'Dr K V Mani Krishna'
-    assert payload['first_page_size'] == {'width': 72.0, 'height': 144.0}
+    assert set(payload) == {'success', 'filename', 'size_bytes', 'page_count'}
 
 
 def test_metadata_rejects_missing_and_invalid_files():

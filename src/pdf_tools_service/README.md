@@ -14,6 +14,10 @@ can operate standalone.
 - Simple HTML interface with drag‑and‑drop file inputs.
 - First-page previews, file size and page-count display.
 - Drag-to-reorder merge cards with explicit page-range controls.
+- Uploaded files are checked for a real PDF signature and parser failures are
+  converted into actionable messages.
+- Merge and extraction screens show elapsed time and an explicitly estimated
+  countdown while a download is being prepared.
 - RESTful JSON responses so the service can be called from other
   applications.
 

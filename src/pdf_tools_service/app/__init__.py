@@ -6,7 +6,7 @@ import json
 import os
 from io import BytesIO
 from flask import Flask, Blueprint, render_template, jsonify, request
-from PyPDF2 import PdfReader
+from .utils.errors import read_pdf, user_error
 
 
 DEFAULT_CONFIG = os.path.join(os.path.dirname(__file__), "..", "config.json")
@@ -48,7 +48,7 @@ def metadata():
         return jsonify({"success": False, "error": "No file uploaded"}), 400
     try:
         raw = uploaded.read()
-        reader = PdfReader(BytesIO(raw))
+        reader = read_pdf(BytesIO(raw), uploaded.filename or "This file")
         return jsonify({
             "success": True,
             "filename": uploaded.filename or "document.pdf",
@@ -56,7 +56,7 @@ def metadata():
             "page_count": len(reader.pages),
         })
     except Exception as exc:
-        return jsonify({"success": False, "error": str(exc)}), 400
+        return jsonify({"success": False, "error": user_error(exc)}), 400
 
 
 @pdf_tools_bp.route("/metrics")

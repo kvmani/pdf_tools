@@ -7,6 +7,7 @@ from flask import render_template, request, jsonify
 
 from .base import BaseController
 from ..services.merge_service import MergeService
+from ..utils.errors import user_error
 
 
 class MergeController(BaseController):
@@ -34,7 +35,7 @@ class MergeController(BaseController):
         def merge():
             """Handle merge requests and return merged PDF as downloadable file."""
 
-            files: List[Tuple[BytesIO, str]] = []
+            files: List[Tuple[BytesIO, str, str]] = []
             idx = 0
             try:
                 while True:
@@ -42,7 +43,7 @@ class MergeController(BaseController):
                     if not file:
                         break
                     range_str = request.form.get(f"range_file{idx}", "all")
-                    files.append((BytesIO(file.read()), range_str))
+                    files.append((BytesIO(file.read()), range_str, file.filename or f"Document {idx + 1}"))
                     idx += 1
                 if not files:
                     return jsonify({"success": False, "error": "At least one PDF is required"}), 400
@@ -62,5 +63,5 @@ class MergeController(BaseController):
                 )
 
             except Exception as exc:
-                return jsonify({"success": False, "error": str(exc)}), 400
+                return jsonify({"success": False, "error": user_error(exc)}), 400
 merge_bp = MergeController().blueprint

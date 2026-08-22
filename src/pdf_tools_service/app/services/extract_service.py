@@ -1,13 +1,14 @@
 from io import BytesIO
 from typing import List
 
-from PyPDF2 import PdfReader, PdfWriter
+from PyPDF2 import PdfWriter
 from pdf2image import convert_from_bytes
 from pdf2image.pdf2image import PDFInfoNotInstalledError
 from PIL import Image
 
 from .base import PDFService
 from ..utils.pdf_parser import PDFPageParser
+from ..utils.errors import read_pdf
 
 
 class ExtractService(PDFService):
@@ -20,6 +21,7 @@ class ExtractService(PDFService):
         *,
         as_images: bool = False,
         preview: bool = False,
+        filename: str = "This file",
     ) -> BytesIO | List[BytesIO]:
         """Extract a range of pages from ``file_stream``.
 
@@ -32,7 +34,7 @@ class ExtractService(PDFService):
             the extracted pages.
         """
 
-        reader = PdfReader(file_stream)
+        reader = read_pdf(file_stream, filename)
         parser = PDFPageParser()
         pages = parser.parse(range_str, len(reader.pages))
         self.preview_images = []

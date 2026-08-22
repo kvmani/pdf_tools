@@ -1,10 +1,11 @@
 from io import BytesIO
 from typing import Iterable, Tuple, List, Optional
 
-from PyPDF2 import PdfReader, PdfWriter
+from PyPDF2 import PdfWriter
 
 from .base import PDFService
 from ..utils.pdf_parser import PDFPageParser
+from ..utils.errors import read_pdf
 
 
 class MergeService(PDFService):
@@ -12,7 +13,7 @@ class MergeService(PDFService):
 
     def process(
         self,
-        files: Iterable[Tuple[BytesIO, str]],
+        files: Iterable[Tuple[BytesIO, str] | Tuple[BytesIO, str, str]],
         order: Optional[List[int]] | None = None,
         output_name: str | None = None,
     ) -> BytesIO:
@@ -31,8 +32,10 @@ class MergeService(PDFService):
         if order:
             file_list = [file_list[i] for i in order]
 
-        for file_stream, range_str in file_list:
-            reader = PdfReader(file_stream)
+        for entry in file_list:
+            file_stream, range_str = entry[:2]
+            filename = entry[2] if len(entry) > 2 else "This file"
+            reader = read_pdf(file_stream, filename)
             pages = parser.parse(range_str, len(reader.pages))
             for page_num in pages:
                 writer.add_page(reader.pages[page_num - 1])

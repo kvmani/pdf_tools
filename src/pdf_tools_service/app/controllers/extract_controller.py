@@ -6,6 +6,7 @@ from flask import render_template, request, jsonify, send_file
 
 from .base import BaseController
 from ..services.extract_service import ExtractService
+from ..utils.errors import user_error
 
 
 class ExtractController(BaseController):
@@ -43,7 +44,8 @@ class ExtractController(BaseController):
                 )
             try:
                 output = self.service.process(
-                    BytesIO(file.read()), range_str, as_images=as_images, preview=preview
+                    BytesIO(file.read()), range_str, as_images=as_images, preview=preview,
+                    filename=file.filename or "This file"
                 )
                 if as_images:
                     data = [img.getvalue().hex() for img in output]
@@ -62,6 +64,6 @@ class ExtractController(BaseController):
                     resp["preview"] = [img.getvalue().hex() for img in self.service.preview_images]
                 return jsonify(resp)
             except Exception as exc:
-                return jsonify({"success": False, "error": str(exc)}), 400
+                return jsonify({"success": False, "error": user_error(exc)}), 400
 
 extract_bp = ExtractController().blueprint

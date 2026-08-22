@@ -12,6 +12,8 @@ can operate standalone.
   upload.
 - **Extract** selected pages from one PDF into a new document.
 - Simple HTML interface with drag‑and‑drop file inputs.
+- First-page previews, file size/page-count metadata, and document title/author details.
+- Drag-to-reorder merge cards with explicit page-range controls.
 - RESTful JSON responses so the service can be called from other
   applications.
 
@@ -50,9 +52,9 @@ Edit `config.json` to tune runtime settings:
 ./run.sh
 ```
 
-Navigate to `/merge` or `/extract` in your browser to use the tools. The web
-forms POST to `/merge` and `/extract` respectively and return a JSON response
-containing the resulting PDF data as a hex encoded string.
+Navigate to `/pdf_tools/` in your browser to use the tools. The web forms POST
+to `/pdf_tools/merge` and `/pdf_tools/extract`; normal operations download a
+PDF, while preview/image modes return JSON payloads for the browser UI.
 
 ### Developer Setup
 

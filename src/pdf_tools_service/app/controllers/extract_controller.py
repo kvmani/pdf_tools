@@ -2,7 +2,7 @@
 
 from io import BytesIO
 
-from flask import render_template, request, jsonify
+from flask import render_template, request, jsonify, send_file
 
 from .base import BaseController
 from ..services.extract_service import ExtractService
@@ -26,7 +26,7 @@ class ExtractController(BaseController):
         def form():
             """Render the extraction form page."""
 
-            return render_template("extract.html")
+            return render_template("pdf_extract.html")
 
         @bp.route('/extract', methods=['POST'])
         def extract():
@@ -34,8 +34,8 @@ class ExtractController(BaseController):
 
             file = request.files.get("file")
             range_str = request.form.get("range", "all")
-            as_images = bool(request.form.get("as_images"))
-            preview = bool(request.form.get("preview"))
+            as_images = request.form.get("as_images") == "1"
+            preview = request.form.get("preview") == "1"
             if not file:
                 return (
                     jsonify({"success": False, "error": "No file uploaded"}),
@@ -49,6 +49,13 @@ class ExtractController(BaseController):
                     data = [img.getvalue().hex() for img in output]
                     resp = {"success": True, "images": data}
                 else:
+                    if not preview:
+                        return send_file(
+                            output,
+                            mimetype="application/pdf",
+                            as_attachment=True,
+                            download_name="extracted_pages.pdf",
+                        )
                     data = output.getvalue()
                     resp = {"success": True, "data": data.hex()}
                 if preview:

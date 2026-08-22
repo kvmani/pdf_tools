@@ -1,0 +1,7 @@
+{% extends 'pdf_base.html' %}
+{% block title %}PDF Tools · Office Scientific Tools{% endblock %}
+{% block content %}
+<section class="hero"><div><p class="eyebrow">PRODUCTIVITY · LOCAL PROCESSING</p><h1>Prepare research PDFs without leaving your workstation.</h1><p class="lede">Merge reports into a review pack or extract only the pages you need. Files stay in memory while the service runs.</p></div><div class="hero-mark"><span>PDF</span><strong>↗</strong></div></section>
+<section class="tool-grid" aria-label="PDF operations"><a class="tool-card" href="{{ url_for('pdf_tools.merge.form') }}"><div class="tool-icon">＋</div><p class="eyebrow">COMBINE</p><h2>Merge PDFs</h2><p>Queue multiple documents, reorder them, apply page ranges, and download one clean PDF.</p><span class="launch">Open merge tool →</span></a><a class="tool-card tool-card-dark" href="{{ url_for('pdf_tools.extract.form') }}"><div class="tool-icon">↗</div><p class="eyebrow">SELECT</p><h2>Extract pages</h2><p>Pull selected pages from a document into a new PDF, with optional previews or image export.</p><span class="launch">Open extract tool →</span></a></section>
+<section class="privacy-note"><strong>Private by design.</strong><span>No uploads are persisted by this service.</span><a href="{{ url_for('pdf_tools.health') }}">Service health →</a></section>
+{% endblock %}

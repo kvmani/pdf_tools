@@ -1,5 +1,5 @@
 import io
-from flask import url_for
+from PyPDF2 import PdfReader
 
 
 def test_health_endpoint(client):
@@ -14,6 +14,20 @@ def test_metrics_endpoint(client):
     assert b'pdf_tools_request_total' in resp.data
 
 
+def test_workspace_pages_and_metadata_missing_file(client):
+    assert b'Merge PDFs' in client.get('/pdf_tools/').data
+    merge_page = client.get('/pdf_tools/merge')
+    assert merge_page.status_code == 200
+    assert b'first-page previews and metadata' in merge_page.data
+    assert b'Drag a card by its handle' in merge_page.data
+    extract_page = client.get('/pdf_tools/extract')
+    assert extract_page.status_code == 200
+    assert b'Extract pages' in extract_page.data
+    response = client.post('/pdf_tools/metadata')
+    assert response.status_code == 400
+    assert response.get_json()['error'] == 'No file uploaded'
+
+
 def test_merge_route(client, sample_pdf):
     data = {
         'file0': (io.BytesIO(sample_pdf), 'a.pdf'),
@@ -21,7 +35,8 @@ def test_merge_route(client, sample_pdf):
     }
     resp = client.post('/pdf_tools/merge', data=data, content_type='multipart/form-data')
     assert resp.status_code == 200
-    assert resp.get_json()['success'] is True
+    assert resp.mimetype == 'application/pdf'
+    assert len(PdfReader(io.BytesIO(resp.data)).pages) == 3
 
 
 def test_extract_route(client, sample_pdf):
@@ -31,4 +46,14 @@ def test_extract_route(client, sample_pdf):
     }
     resp = client.post('/pdf_tools/extract', data=data, content_type='multipart/form-data')
     assert resp.status_code == 200
-    assert resp.get_json()['success'] is True
+    assert resp.mimetype == 'application/pdf'
+    assert len(PdfReader(io.BytesIO(resp.data)).pages) == 1
+
+
+def test_routes_return_structured_errors(client):
+    assert client.post('/pdf_tools/merge', data={}, content_type='multipart/form-data').status_code == 400
+    assert client.post('/pdf_tools/extract', data={}, content_type='multipart/form-data').status_code == 400
+    bad_merge = client.post('/pdf_tools/merge', data={'file0': (io.BytesIO(b'bad'), 'bad.pdf')}, content_type='multipart/form-data')
+    assert bad_merge.status_code == 400
+    bad_extract = client.post('/pdf_tools/extract', data={'file': (io.BytesIO(b'bad'), 'bad.pdf'), 'range': '1'}, content_type='multipart/form-data')
+    assert bad_extract.status_code == 400

@@ -27,7 +27,7 @@ class MergeController(BaseController):
         def form():
             """Render the merge form page."""
 
-            return render_template("merge.html")
+            return render_template("pdf_merge.html")
 
 
         @bp.route('/merge', methods=['POST'])
@@ -44,6 +44,8 @@ class MergeController(BaseController):
                     range_str = request.form.get(f"range_file{idx}", "all")
                     files.append((BytesIO(file.read()), range_str))
                     idx += 1
+                if not files:
+                    return jsonify({"success": False, "error": "At least one PDF is required"}), 400
 
                 order_param = request.form.get("order")
                 order = [int(x) for x in order_param.split(",")] if order_param else None

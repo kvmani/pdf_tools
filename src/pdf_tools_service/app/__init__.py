@@ -4,13 +4,21 @@ from __future__ import annotations
 
 import json
 import os
-from flask import Flask, Blueprint, render_template, jsonify
+from io import BytesIO
+from flask import Flask, Blueprint, render_template, jsonify, request
+from PyPDF2 import PdfReader
 
 
 DEFAULT_CONFIG = os.path.join(os.path.dirname(__file__), "..", "config.json")
 
 # parent blueprint exported for integration with other apps
-pdf_tools_bp = Blueprint("pdf_tools", __name__, url_prefix="/pdf_tools")
+pdf_tools_bp = Blueprint(
+    "pdf_tools",
+    __name__,
+    url_prefix="/pdf_tools",
+    template_folder="templates",
+    static_folder="static",
+)
 
 from .controllers.merge_controller import merge_bp
 from .controllers.extract_controller import extract_bp
@@ -23,13 +31,40 @@ pdf_tools_bp.register_blueprint(extract_bp)
 @pdf_tools_bp.route("/")
 def index() -> str:
     """Render the landing page."""
-    return render_template("index.html")
+    return render_template("pdf_index.html")
 
 
 @pdf_tools_bp.route("/health")
 def health():
     """Health check endpoint."""
     return jsonify({"status": "ok"})
+
+
+@pdf_tools_bp.route("/metadata", methods=["POST"])
+def metadata():
+    """Return lightweight metadata for a PDF selected in the browser."""
+    uploaded = request.files.get("file")
+    if not uploaded:
+        return jsonify({"success": False, "error": "No file uploaded"}), 400
+    try:
+        raw = uploaded.read()
+        reader = PdfReader(BytesIO(raw))
+        info = reader.metadata or {}
+        first_page = reader.pages[0] if reader.pages else None
+        box = first_page.mediabox if first_page else None
+        return jsonify({
+            "success": True,
+            "filename": uploaded.filename or "document.pdf",
+            "size_bytes": len(raw),
+            "page_count": len(reader.pages),
+            "title": info.get("/Title"),
+            "author": info.get("/Author"),
+            "first_page_size": {
+                "width": float(box.width), "height": float(box.height)
+            } if box else None,
+        })
+    except Exception as exc:
+        return jsonify({"success": False, "error": str(exc)}), 400
 
 
 @pdf_tools_bp.route("/metrics")

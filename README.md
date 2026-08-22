@@ -17,6 +17,13 @@ source venv/bin/activate
 pip install -e .
 ```
 
+## Deployment modes
+
+PDF Tools is standalone by default: install this repository and run its own Flask web app without
+`ml_server` or any other platform repository. The `ml_server` portal is an optional integration
+layer that may mount the blueprint or link to the standalone service; it is not required for PDF
+Tools development, testing, or deployment.
+
 ## Usage
 
 Start the server using the provided script:

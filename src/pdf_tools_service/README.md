@@ -21,6 +21,13 @@ can operate standalone.
 - RESTful JSON responses so the service can be called from other
   applications.
 
+## Deployment modes
+
+This service is independently runnable as a complete local web application. Its own configuration,
+startup script, health endpoint, tests, and browser UI are sufficient for a single-tool deployment.
+When used by `ml_server`, the portal adds discovery and routing through the blueprint boundary; it
+does not become an ownership or runtime prerequisite.
+
 ## Architecture
 
 The application follows a small blueprint-based layout:

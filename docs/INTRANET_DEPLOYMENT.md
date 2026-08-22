@@ -1,7 +1,8 @@
 # Intranet Deployment
 
 This service can run stand alone or as a blueprint under the `ml_server`
-application.
+application. Standalone operation is a first-class deployment mode: no portal,
+unrelated tool, or shared runtime is required.
 
 ## Standalone testing
 

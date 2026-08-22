@@ -1,8 +1,11 @@
 from io import BytesIO
 
+from flask import g, make_response
 from PyPDF2 import PdfReader, PdfWriter
 
-from pdf_tools_service.app import create_app
+from pdf_tools_service.app import _load_config, create_app
+from pdf_tools_service.app.controllers.base import BaseController
+from pdf_tools_service.app.services.base import PDFService
 
 
 def make_pdf(pages=2, title=None, author=None):
@@ -19,6 +22,25 @@ def make_pdf(pages=2, title=None, author=None):
 
 def pdf_client():
     return create_app().test_client()
+
+
+def test_application_root_config_overrides_and_abstract_contracts(monkeypatch, tmp_path):
+    assert b'PDF Tools Service is running' in pdf_client().get('/').data
+    config_file = tmp_path / 'config.json'
+    config_file.write_text('{"limit": 1}', encoding='utf-8')
+    monkeypatch.setenv('PDFTOOLS_LIMIT', '2')
+    monkeypatch.setenv('PDFTOOLS_FLAG', 'true')
+    monkeypatch.setenv('PDFTOOLS_NESTED__VALUE', 'plain-text')
+    assert _load_config(str(config_file)) == {'limit': 2, 'flag': True, 'nested': {'value': 'plain-text'}}
+    with __import__('pytest').raises(NotImplementedError):
+        BaseController('coverage-only', __name__)
+    with __import__('pytest').raises(NotImplementedError):
+        PDFService.process(object())
+    app = create_app()
+    with app.test_request_context('/'):
+        assert BaseController.__new__(BaseController)._max_content_length() == 10 * 1024 * 1024
+        g.__dict__.clear()
+        assert app.after_request_funcs[None][0](make_response('ok')).status_code == 200
 
 
 def test_metadata_reports_size_pages_dimensions_and_document_info():

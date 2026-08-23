@@ -1,7 +1,7 @@
 from io import BytesIO
 from typing import Iterable, Tuple, List, Optional
 
-from PyPDF2 import PdfWriter
+from pypdf import PdfWriter
 
 from .base import PDFService
 from ..utils.pdf_parser import PDFPageParser

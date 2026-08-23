@@ -1,7 +1,7 @@
 from io import BytesIO
 from typing import List
 
-from PyPDF2 import PdfWriter
+from pypdf import PdfWriter
 from pdf2image import convert_from_bytes
 from pdf2image.pdf2image import PDFInfoNotInstalledError
 from PIL import Image

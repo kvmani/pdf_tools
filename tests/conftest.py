@@ -16,7 +16,7 @@ def client(app):
 
 
 def create_pdf(pages: int = 1, height: int = 72) -> bytes:
-    from PyPDF2 import PdfWriter
+    from pypdf import PdfWriter
 
     writer = PdfWriter()
     for _ in range(pages):

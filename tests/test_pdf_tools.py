@@ -1,7 +1,7 @@
 from io import BytesIO
 
 from flask import g, make_response
-from PyPDF2 import PdfReader, PdfWriter
+from pypdf import PdfReader, PdfWriter
 
 from pdf_tools_service.app import _load_config, create_app
 from pdf_tools_service.app.controllers.base import BaseController

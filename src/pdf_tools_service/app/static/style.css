@@ -3,3 +3,20 @@
 .merge-drop-zone{margin:18px 0;transition:background .2s,border-color .2s}.merge-drop-zone.is-dragging{background:#dceee8;border-color:#0d554d}.file-item{grid-template-columns:190px 1fr auto;align-items:stretch;cursor:grab}.file-item.is-dragging{opacity:.45;border-color:#e86f51}.file-preview{position:relative;min-height:180px;background:#dfe8e5;border-radius:10px;overflow:hidden}.pdf-preview{width:100%;height:180px;border:0;background:#fff}.drag-handle{position:absolute;z-index:1;top:8px;left:8px;padding:3px 8px;border-radius:8px;background:#183b56;color:#fff;font-size:1.2rem;cursor:grab}.file-details{display:grid;align-content:start;gap:8px}.file-details .filename{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.file-details .metadata{color:var(--muted);font-size:.88rem}.file-details input[type=file]{font:inherit;max-width:100%}.file-actions{display:flex;flex-direction:column;gap:8px}.file-actions .small-button{height:38px}.file-item input[type=text]{font:inherit;padding:9px;border:1px solid var(--line);border-radius:8px}@media(max-width:700px){.file-item{grid-template-columns:1fr}.file-actions{flex-direction:row}.file-preview{min-height:220px}.pdf-preview{height:220px}}
 .workspace-error{margin:0 0 18px;padding:14px 16px;border:1px solid #e3a39a;border-left:5px solid #b33a2b;border-radius:10px;background:#fff1ef;color:#7d2118;font-weight:650}.file-item.is-invalid{border-color:#d77b70;background:#fff7f5}.file-details .metadata.error{color:#9b2c20;font-weight:650}
 .job-progress{margin:0 0 18px;padding:14px 16px;border:1px solid #a8d4c7;border-radius:10px;background:#effaf6;color:#183b56}.job-progress strong{display:block;margin-bottom:9px}.progress-track{height:8px;overflow:hidden;border-radius:99px;background:#cfe6df}.progress-bar{height:100%;width:0;border-radius:99px;background:#0d554d;transition:width .4s ease}.progress-detail{display:block;margin-top:7px;color:#667784;font-size:.88rem}
+.help-diagram{display:block;width:100%;margin:1.25rem 0;border-radius:16px}.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.help-grid .workspace-card:last-child{grid-column:1/-1}.help-grid dt{font-weight:800;color:#542b31}.help-grid dd{margin:.2rem 0 .8rem;color:#6f6263}.help-equation{padding:.75rem;border-radius:9px;background:#f8e9e6;color:#542b31;font:700 1.15rem Georgia,serif;text-align:center}@media(max-width:700px){.help-grid{grid-template-columns:1fr}.help-grid .workspace-card:last-child{grid-column:auto}}
+
+/* Offline mathematics and the privacy panel on the help page.
+   Equations are typeset by the vendored MathJax bundle in static/vendor/mathjax.
+   The raw TeX is hidden only while .mathjax-pending is set by the config script,
+   so a missing bundle degrades to readable source rather than an empty box. */
+.help-equation{margin:1.1rem 0 .4rem;padding:1rem .85rem;border-radius:10px;background:#f8e9e6;border:1px solid #f0dad5;color:#542b31;text-align:center;overflow-x:auto;overflow-y:hidden;font:1.05rem/1.5 'Latin Modern Math','Cambria Math',Georgia,serif}
+.help-equation mjx-container{margin:0!important;max-width:100%}
+.mathjax-pending .help-equation,.mathjax-pending .helper .mathjax{visibility:hidden}
+.workspace-card .helper{margin:0 0 1.2rem}
+.privacy-panel{margin:1.75rem 0;padding:1.6rem 1.75rem;border:1px solid #bfdfe6;border-radius:20px;background:#eef8fa}
+.privacy-panel h2{margin:0 0 1rem;font:700 1.6rem Georgia,serif;color:var(--ink)}
+.privacy-panel ul{margin:0;padding-left:1.15rem;columns:2;column-gap:2.25rem}
+.privacy-panel li{color:var(--muted);line-height:1.6;break-inside:avoid}
+.privacy-panel li+li{margin-top:.7rem}
+.privacy-panel strong{color:var(--ink)}
+@media(max-width:820px){.privacy-panel ul{columns:1}}

@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import os
 from io import BytesIO
-from flask import Flask, Blueprint, render_template, jsonify, request
+from flask import Flask, Blueprint, Response, render_template, jsonify, request
 from .utils.errors import read_pdf, user_error
 
 
@@ -34,10 +34,16 @@ def index() -> str:
     return render_template("pdf_index.html")
 
 
+@pdf_tools_bp.route("/help")
+def help_page() -> str:
+    """Explain page algorithms, inputs, privacy, and operational limits."""
+    return render_template("pdf_help.html")
+
+
 @pdf_tools_bp.route("/health")
 def health():
     """Health check endpoint."""
-    return jsonify({"status": "ok"})
+    return jsonify({"status": "ok", "tool_id": "pdf-tools", "version": "0.2.0"})
 
 
 @pdf_tools_bp.route("/metadata", methods=["POST"])
@@ -100,7 +106,7 @@ def create_app(config_path: str | None = None) -> Flask:
         g._metric_start = time.time()
 
     @app.after_request
-    def _end_timer(response):
+    def _end_timer(response: Response):
         from flask import g, request
         if hasattr(g, "_metric_start") and hasattr(g, "_metric_path"):
             import time
@@ -109,6 +115,12 @@ def create_app(config_path: str | None = None) -> Flask:
             request_count.labels(g._metric_path, response.status_code).inc()
         else:
             request_count.labels(request.path, response.status_code).inc()
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("Referrer-Policy", "no-referrer")
+        response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+        response.headers.setdefault("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'")
+        if request.path.startswith("/pdf_tools/metadata"):
+            response.headers.setdefault("Cache-Control", "no-store")
         return response
 
     app.register_blueprint(pdf_tools_bp)

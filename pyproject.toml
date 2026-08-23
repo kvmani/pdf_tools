@@ -4,22 +4,27 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pdf_tools_service"
-version = "0.1.0"
+version = "0.2.0"
 description = "Lightweight Flask PDF tools service"
 authors = [{name = "PDF Tools Maintainers"}]
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
     "Flask",
-    "PyPDF2",
+    "pypdf>=6.0,<7",
     "pdf2image",
     "WTForms",
     "Pillow",
-    "prometheus_client"
+    "prometheus_client",
+    "waitress>=3.0,<4"
 ]
+
+[project.scripts]
+pdf-tools = "pdf_tools_service.__main__:main"
 
 [tool.setuptools.package-data]
 pdf_tools_service = [
+    "config.json",
     "app/templates/*.html",
     "app/static/**/*",
 ]

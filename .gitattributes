@@ -1,0 +1,4 @@
+# Vendored third-party assets ship byte-for-byte; do not rewrite line endings.
+src/pdf_tools_service/app/static/vendor/** -text
+*.woff  binary
+*.woff2 binary

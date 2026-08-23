@@ -27,7 +27,7 @@ def test_merge_reorder_and_filename():
     pdf_b = BytesIO(create_pdf_custom_height(100))
     files = [(pdf_a, 'all'), (pdf_b, 'all')]
     output = service.process(files, order=[1, 0], output_name="result.pdf")
-    from PyPDF2 import PdfReader
+    from pypdf import PdfReader
     reader = PdfReader(output)
     first_page = reader.pages[0]
     assert float(first_page.mediabox.height) == 100

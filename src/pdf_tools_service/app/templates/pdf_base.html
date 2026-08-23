@@ -8,9 +8,10 @@
     <script defer src="{{ url_for('pdf_tools.static', filename='js/browser_support.js') }}"></script>
     <script defer src="{{ url_for('pdf_tools.static', filename='js/preview.js') }}"></script>
     <script defer src="{{ url_for('pdf_tools.static', filename='js/extract.js') }}"></script>
+    {% block head_extra %}{% endblock %}
 </head>
 <body>
-<header><nav><a class="brand" href="{{ url_for('pdf_tools.index') }}">PDF Tools <span>OFFICE SCIENTIFIC TOOLS</span></a><div class="nav-links"><a href="{{ url_for('pdf_tools.merge.form') }}">Merge PDFs</a><a href="{{ url_for('pdf_tools.extract.form') }}">Extract Pages</a></div></nav></header>
+<header><nav><a class="brand" href="{{ url_for('pdf_tools.index') }}">PDF Tools <span>OFFICE SCIENTIFIC TOOLS</span></a><div class="nav-links"><a href="{{ url_for('pdf_tools.merge.form') }}">Merge PDFs</a><a href="{{ url_for('pdf_tools.extract.form') }}">Extract Pages</a><a href="{{ url_for('pdf_tools.help_page') }}">Help &amp; guide</a></div></nav></header>
 <main class="page-shell">{% block content %}{% endblock %}</main>
 </body>
 </html>

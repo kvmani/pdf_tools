@@ -5,8 +5,8 @@ from __future__ import annotations
 import logging
 from typing import BinaryIO
 
-from PyPDF2 import PdfReader
-from PyPDF2.errors import PdfReadError
+from pypdf import PdfReader
+from pypdf.errors import PdfReadError
 
 LOGGER = logging.getLogger(__name__)
 

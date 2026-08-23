@@ -1,0 +1,65 @@
+{% extends "pdf_base.html" %}
+{% block title %}PDF Tools · Help &amp; Guide{% endblock %}
+{% block head_extra %}
+<script src="{{ url_for('pdf_tools.static', filename='js/mathjax-config.js') }}"></script>
+<script defer id="MathJax-script" src="{{ url_for('pdf_tools.static', filename='vendor/mathjax/tex-chtml-full.js') }}"></script>
+{% endblock %}
+{% block content %}
+<section class="workspace-head">
+  <p class="eyebrow">PDF TOOLS / HELP &amp; GUIDE</p>
+  <h1>Page transformation, made auditable</h1>
+  <p class="lede">PDF Tools works with <strong>any PDF</strong> — reports, scans, forms, presentations, invoices, manuscripts, or drawings. It validates each document, reads its page tree, applies an explicit one-based selection and order, then writes a new document. Your file is processed on this office intranet server and is never stored or sent anywhere.</p>
+</section>
+
+<img class="help-diagram" src="{{ url_for('pdf_tools.static', filename='pdf-workflow.svg') }}" alt="PDF validation, selection, assembly, and output workflow">
+
+<section class="privacy-panel">
+  <p class="eyebrow">YOUR DOCUMENTS, YOUR NETWORK</p>
+  <h2>Privacy and data security</h2>
+  <ul>
+    <li><strong>Any PDF is welcome.</strong> Official, administrative, personal, or technical — there is no restriction on the subject of your document, and the tool never inspects or interprets its content.</li>
+    <li><strong>Nothing is stored.</strong> Uploads are held only in server memory for the lifetime of your request and are released as soon as the result is returned.</li>
+    <li><strong>Nothing leaves the office network.</strong> The service runs entirely on intranet hardware. No document, page, or fragment is transmitted to the public internet or to any third-party service.</li>
+    <li><strong>No personal information is collected.</strong> The tool does not identify you, build a profile, or record what you worked on.</li>
+  </ul>
+</section>
+
+<section class="help-grid">
+  <article class="workspace-card">
+    <h2>Algorithm</h2>
+    <ol>
+      <li>Confirm the PDF signature, encryption state, size, and readable page tree.</li>
+      <li>Parse inclusive one-based ranges such as <code>1-3, 6</code>.</li>
+      <li>Preserve the user's file and range order.</li>
+      <li>Copy selected page objects into a new page tree.</li>
+      <li>Stream the result, then release request memory.</li>
+    </ol>
+    <div class="help-equation mathjax" role="math" aria-label="P out equals the ordered concatenation, for j from 1 to m, of the pages of document j from a_j to b_j">\[ P_{\text{out}} \;=\; \big\Vert_{\,j=1}^{\,m}\; P_{j}\bigl[a_{j} : b_{j}\bigr] \]</div>
+    <p class="helper">The output is the ordered concatenation of every selected range, where <span class="mathjax">\(P_{j}\)</span> is the page list of document <span class="mathjax">\(j\)</span> and <span class="mathjax">\(a_{j}, b_{j}\)</span> are the first and last page of a selected one-based range.</p>
+    <div class="help-equation mathjax" role="math" aria-label="N out equals the sum from j equals 1 to m of b_j minus a_j plus one">\[ N_{\text{out}} \;=\; \sum_{j=1}^{m}\,\bigl(b_{j}-a_{j}+1\bigr) \]</div>
+    <p class="helper">Every range is inclusive, so a <code>1-3</code> selection contributes three pages.</p>
+  </article>
+
+  <article class="workspace-card">
+    <h2>Critical inputs</h2>
+    <dl>
+      <dt>Source PDF</dt><dd>Any PDF, regardless of subject. Determines the available pages, metadata, encryption state, and processing cost.</dd>
+      <dt>Page range</dt><dd>Controls exact inclusive selection; missing pages are rejected.</dd>
+      <dt>Document order</dt><dd>Controls concatenation sequence in a merge.</dd>
+      <dt>Export mode</dt><dd>PDF preserves page objects; image export rasterizes them.</dd>
+    </dl>
+    <div class="help-equation mathjax" role="math" aria-label="S in mebibytes equals S in bytes divided by two to the twentieth">\[ S_{\mathrm{MiB}} \;=\; \frac{S_{\text{bytes}}}{2^{20}} \]</div>
+    <p class="helper">Upload size is reported in binary mebibytes so the operational limit is unambiguous.</p>
+  </article>
+
+  <article class="workspace-card">
+    <h2>Limits and failure modes</h2>
+    <ul>
+      <li>Reordering does not edit page content or repair damaged PDFs.</li>
+      <li>Locked and malformed files are rejected with safe messages.</li>
+      <li>Raster export loses vector text and should be used only when needed.</li>
+      <li>Processing is local and request-scoped; deployers must still configure proxy upload limits.</li>
+    </ul>
+  </article>
+</section>
+{% endblock %}

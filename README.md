@@ -36,6 +36,18 @@ The server listens on `http://HOST:PORT` (default `0.0.0.0:8000`). Navigate to
 `/pdf_tools/merge` or `/pdf_tools/extract` to use the tools. When integrated
 with `ml_server`, mount the blueprint under the same prefix.
 
+For production, install the repository and use the Waitress entry point rather
+than Flask's development server:
+
+```bash
+python -m pip install -e .
+HOST=127.0.0.1 PORT=8000 pdf-tools
+```
+
+Verify `/pdf_tools/health` and `/pdf_tools/help` before switching reverse-proxy
+traffic. Keep upload limits at both the proxy and Flask layers. Roll back by
+reinstalling the previously pinned release and restarting the service.
+
 Configuration is loaded from `src/pdf_tools_service/config.json` by default. A
 different path can be provided using the `PDF_TOOLS_CONFIG` environment
 variable or as the first argument to `run.sh` and `setup.sh`.

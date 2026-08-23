@@ -1,11 +1,18 @@
 import io
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 
 
 def test_health_endpoint(client):
     resp = client.get('/pdf_tools/health')
     assert resp.status_code == 200
-    assert resp.get_json() == {"status": "ok"}
+    assert resp.get_json() == {"status": "ok", "tool_id": "pdf-tools", "version": "0.2.0"}
+
+
+def test_scientific_help_and_security_headers(client):
+    response = client.get('/pdf_tools/help')
+    assert response.status_code == 200
+    assert b'pdf-workflow.svg' in response.data
+    assert response.headers['X-Content-Type-Options'] == 'nosniff'
 
 
 def test_metrics_endpoint(client):

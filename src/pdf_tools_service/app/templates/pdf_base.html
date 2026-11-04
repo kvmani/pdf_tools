@@ -1,8 +1,10 @@
-<!DOCTYPE html>
+{% from '_macros.html' import icon %}<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>{% block title %}PDF Tools{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('pdf_tools.static', filename='theme.css') }}">
     <link rel="stylesheet" href="{{ url_for('pdf_tools.static', filename='style.css') }}">
     <script src="{{ url_for('pdf_tools.static', filename='js/pdf.min.js') }}"></script>
     <script defer src="{{ url_for('pdf_tools.static', filename='js/browser_support.js') }}"></script>
@@ -10,8 +12,25 @@
     <script defer src="{{ url_for('pdf_tools.static', filename='js/extract.js') }}"></script>
     {% block head_extra %}{% endblock %}
 </head>
-<body>
-<header><nav><a class="brand" href="{{ url_for('pdf_tools.index') }}">PDF Tools <span>OFFICE SCIENTIFIC TOOLS</span></a><div class="nav-links"><a href="{{ url_for('pdf_tools.editor.workspace') }}">PDF Editor</a><a href="{{ url_for('pdf_tools.merge.form') }}">Merge PDFs</a><a href="{{ url_for('pdf_tools.extract.form') }}">Extract Pages</a><a href="{{ url_for('pdf_tools.help_page') }}">Help &amp; guide</a></div></nav></header>
+<body data-icons="{{ url_for('pdf_tools.static', filename='vendor/lucide/icons.svg') }}">
+{% set nav = [
+    ('pdf_tools.editor.workspace', 'file-pen-line', 'PDF Editor'),
+    ('pdf_tools.merge.form', 'files', 'Merge PDFs'),
+    ('pdf_tools.extract.form', 'scissors', 'Extract Pages'),
+    ('pdf_tools.help_page', 'circle-help', 'Help &amp; guide'),
+] %}
+<header class="app-header">
+  <div class="app-header-inner">
+    <a class="brand" href="{{ url_for('pdf_tools.index') }}"{% if request.endpoint == 'pdf_tools.index' %} aria-current="page"{% endif %}>
+      <span class="brand-mark">{{ icon('file-text') }}</span>
+      <span>PDF Tools<small>Office intranet</small></span>
+    </a>
+    <nav class="main-nav" aria-label="Main">
+      {% for endpoint, glyph, label in nav %}<a href="{{ url_for(endpoint) }}"{% if request.endpoint == endpoint %} aria-current="page"{% endif %}>{{ icon(glyph) }}<span>{{ label|safe }}</span></a>{% endfor %}
+    </nav>
+  </div>
+</header>
 <main class="page-shell">{% block content %}{% endblock %}</main>
+<footer class="site-footer"><div>{{ icon('shield-check') }} Files are processed on this intranet server and never stored.</div><a href="{{ url_for('pdf_tools.help_page') }}">How it works</a></footer>
 </body>
 </html>

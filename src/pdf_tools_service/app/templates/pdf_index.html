@@ -1,7 +1,41 @@
 {% extends 'pdf_base.html' %}
+{% from '_macros.html' import icon %}
 {% block title %}PDF Tools · Intranet workspace{% endblock %}
 {% block content %}
-<section class="hero"><div><p class="eyebrow">PRODUCTIVITY · LOCAL PROCESSING</p><h1>Work with any PDF, quickly and privately.</h1><p class="lede">Merge documents or extract only the pages you need &mdash; reports, scans, forms, presentations, or manuscripts alike. Your files are processed in memory on this office intranet server, are never stored, and never leave the office network.</p></div><div class="hero-mark"><span>PDF</span><strong>↗</strong></div></section>
-<section class="tool-grid" aria-label="PDF operations"><a class="tool-card" href="{{ url_for('pdf_tools.editor.workspace') }}"><div class="tool-icon">✎</div><p class="eyebrow">EDIT &amp; REVIEW</p><h2>PDF Editor</h2><p>Add text, comments, highlights, images and signature images. Arrange pages and save one finished PDF.</p><span class="launch">Open editor →</span></a><a class="tool-card" href="{{ url_for('pdf_tools.merge.form') }}"><div class="tool-icon">＋</div><p class="eyebrow">COMBINE</p><h2>Merge PDFs</h2><p>Queue multiple documents, reorder them, apply page ranges, and download one clean PDF.</p><span class="launch">Open merge tool →</span></a><a class="tool-card tool-card-dark" href="{{ url_for('pdf_tools.extract.form') }}"><div class="tool-icon">↗</div><p class="eyebrow">SELECT</p><h2>Extract pages</h2><p>Pull selected pages from a document into a new PDF, with optional previews or image export.</p><span class="launch">Open extract tool →</span></a></section>
-<section class="privacy-note"><strong>Private by design.</strong><span>Any PDF is accepted regardless of its content. Nothing is stored, nothing is shared, and no personal information is collected.</span><a href="{{ url_for('pdf_tools.help_page') }}">How it works &rarr;</a></section>
+<section class="hero">
+  <span class="pill">{{ icon('lock') }} Private · runs on the office intranet</span>
+  <h1>Work with any PDF,<br>quickly and privately.</h1>
+  <p class="lede">Edit, merge or extract pages from reports, scans, forms, presentations and manuscripts. Your files are processed in memory on this office intranet server, are never stored, and never leave the office network.</p>
+  <div class="hero-actions">
+    <a class="btn btn-primary btn-lg" href="{{ url_for('pdf_tools.editor.workspace') }}">{{ icon('file-pen-line') }} Open the editor</a>
+    <a class="btn btn-lg" href="{{ url_for('pdf_tools.merge.form') }}">{{ icon('files') }} Merge PDFs</a>
+  </div>
+</section>
+
+<section class="tool-grid" aria-label="PDF operations">
+  <a class="tool-card" href="{{ url_for('pdf_tools.editor.workspace') }}">
+    <span class="tool-icon">{{ icon('file-pen-line') }}</span>
+    <h2>PDF Editor</h2>
+    <p>Add text, comments, highlights, drawings, images and signature images. Rearrange, rotate and delete pages, then download one finished PDF.</p>
+    <span class="launch">Open editor {{ icon('arrow-right') }}</span>
+  </a>
+  <a class="tool-card" href="{{ url_for('pdf_tools.merge.form') }}">
+    <span class="tool-icon">{{ icon('files') }}</span>
+    <h2>Merge PDFs</h2>
+    <p>Combine several documents into one. Preview each file, drag them into order and choose page ranges.</p>
+    <span class="launch">Open merge tool {{ icon('arrow-right') }}</span>
+  </a>
+  <a class="tool-card" href="{{ url_for('pdf_tools.extract.form') }}">
+    <span class="tool-icon">{{ icon('scissors') }}</span>
+    <h2>Extract pages</h2>
+    <p>Pick pages visually from thumbnails and save them as a new PDF or as PNG images.</p>
+    <span class="launch">Open extract tool {{ icon('arrow-right') }}</span>
+  </a>
+</section>
+
+<section class="feature-row" aria-label="Privacy">
+  <div class="feature">{{ icon('server-off') }}<div><strong>Nothing is stored</strong><span>Files live only in memory for the length of your request.</span></div></div>
+  <div class="feature">{{ icon('shield-check') }}<div><strong>Stays on the intranet</strong><span>No cloud services, tracking or external downloads.</span></div></div>
+  <div class="feature">{{ icon('lock') }}<div><strong>Any PDF welcome</strong><span>No personal information is collected. <a href="{{ url_for('pdf_tools.help_page') }}">How it works</a></span></div></div>
+</section>
 {% endblock %}

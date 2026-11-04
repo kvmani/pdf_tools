@@ -1,0 +1,85 @@
+/* PDF Tools shared design system.
+   Loaded by every page (tool pages and the editor) so colors, type, buttons,
+   form controls and the header stay consistent. No external fonts or assets. */
+:root{
+  --bg:#f4f6f5;
+  --surface:#ffffff;
+  --surface-2:#f8faf9;
+  --surface-3:#eef2f0;
+  --border:#e1e7e4;
+  --border-strong:#c9d3cf;
+  --text:#15211d;
+  --text-2:#3d4c46;
+  --muted:#66756f;
+  --primary:#0f6b58;
+  --primary-hover:#0b5747;
+  --primary-soft:#e7f3ef;
+  --primary-ring:#0f6b5833;
+  --accent:#c2691f;
+  --danger:#b42318;
+  --danger-soft:#fef3f2;
+  --warning:#8a5a00;
+  --warning-soft:#fff8e6;
+  --success:#067647;
+  --success-soft:#ecfdf3;
+  --radius-sm:6px;
+  --radius:10px;
+  --radius-lg:14px;
+  --shadow-sm:0 1px 2px rgba(21,33,29,.06);
+  --shadow:0 1px 3px rgba(21,33,29,.06),0 4px 12px rgba(21,33,29,.05);
+  --shadow-lg:0 12px 32px rgba(21,33,29,.10);
+  --font:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 var(--font);-webkit-font-smoothing:antialiased}
+h1,h2,h3{color:var(--text);letter-spacing:-.015em;line-height:1.2}
+a{color:var(--primary)}
+code{font-family:var(--mono);font-size:.88em;background:var(--surface-3);border:1px solid var(--border);padding:1px 5px;border-radius:5px}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.icon{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.visually-hidden{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:8px 16px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);font:600 14px/1.2 var(--font);text-decoration:none;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,box-shadow .15s,color .15s}
+.btn:hover{background:var(--surface-3);border-color:var(--border-strong)}
+.btn:disabled,.btn[aria-disabled=true]{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:var(--shadow-sm)}
+.btn-primary:hover{background:var(--primary-hover);border-color:var(--primary-hover);color:#fff}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--text-2)}
+.btn-ghost:hover{background:var(--surface-3)}
+.btn-danger:hover{color:var(--danger);border-color:#f3c2bd;background:var(--danger-soft)}
+.btn-lg{min-height:46px;padding:12px 22px;font-size:15px}
+.btn-icon{min-height:34px;width:34px;padding:0}
+
+/* Form controls */
+.field{display:grid;gap:6px}
+.field-label{font-weight:600;font-size:13px;color:var(--text-2)}
+.field-hint{font-size:12.5px;color:var(--muted)}
+.input{width:100%;min-height:40px;padding:8px 12px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);font:14px/1.4 var(--font);transition:border-color .15s,box-shadow .15s}
+.input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-ring)}
+
+/* Header */
+.app-header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--border)}
+.app-header-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;gap:32px}
+.brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);font-weight:700;font-size:16px;letter-spacing:-.01em}
+.brand-mark{display:grid;place-items:center;width:32px;height:32px;border-radius:8px;background:var(--primary);color:#fff;box-shadow:inset 0 -2px 0 rgba(0,0,0,.15)}
+.brand-mark .icon{width:18px;height:18px;stroke-width:2}
+.brand small{display:block;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:1px}
+.main-nav{display:flex;gap:4px;margin-left:auto}
+.main-nav a{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:var(--radius-sm);color:var(--text-2);text-decoration:none;font-size:14px;font-weight:550}
+.main-nav a:hover{background:var(--surface-3);color:var(--text)}
+.main-nav a[aria-current=page]{background:var(--primary-soft);color:var(--primary)}
+.main-nav .icon{width:16px;height:16px}
+
+/* Status banners */
+.alert{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface-2);font-size:14px}
+.alert-error{border-color:#f5c6c1;background:var(--danger-soft);color:#7a1a12}
+.alert-success{border-color:#abefc6;background:var(--success-soft);color:#054f31}
+
+@media (max-width:760px){
+  .app-header-inner{height:auto;min-height:56px;padding:10px 16px;gap:12px;flex-wrap:wrap}
+  .main-nav{margin-left:0;width:100%;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  .main-nav a{padding:7px 10px;font-size:13.5px;flex-shrink:0}
+}

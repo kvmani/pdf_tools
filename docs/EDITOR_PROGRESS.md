@@ -20,6 +20,29 @@ force-push or overwrite concurrent work. Record blockers and partial work here.
 4. [complete] Expanded browser/geometry/export/recovery checks, offline wheel
    installation, screenshot gallery, user/admin guide and dependency notices.
    The final validation/documentation commit contains this ledger update.
+5. [complete] UI/usability review (2026-11-04), pushed to main in small commits:
+   - `e9a9fd6` fix: vendored PDF.js `build/` was ignored by `.gitignore`
+     (`build/` → `/build/`); restored pdfjs-dist 6.5.438 files, integrity verified.
+   - `83f5ce5` shared design system `static/theme.css`, sticky nav with active page,
+     `_macros.html` icon macro, new home page; Lucide sprite extended (54 icons)
+     from the same verified 1.68.0 tarball.
+   - `e8742f4` merge redesign (multi-file drop zone, rows with thumbnails, labelled
+     ranges, summary). Thumbnails previously never rendered (`pdf.destroy` is not
+     a PDF.js 6 API; use `loadingTask.destroy()`).
+   - `4be6c53` extract: thumbnail page picker synced with the range field, client
+     range validation mirroring `PDFPageParser`, PNG export rendered with PDF.js in
+     the browser and zipped (store-only writer in `extract.js`). The server's
+     `preview`/`as_images` API is unchanged but no longer used by the page.
+   - `7a2f347` editor: theme, full-height layout, context-aware properties panel
+     (`markFields`/`toolFields` in `editor.js`), shortcuts, drop-to-open,
+     background thumbnails, responsive layouts, `#paper[data-rendering]` flag; the
+     browser test waits on it (`settled()`) before measuring placed objects.
+   - `49848b9` help page and workflow SVG recoloured to the shared palette.
+   - Final commit: regenerated gallery (11 screenshots) and docs.
+   Checks: 54 pytest cases pass; `tests/browser/editor.cjs` passes repeatedly with
+   no external requests or JS errors; ad-hoc Playwright checks covered merge
+   download (5 pages from 3 + `1-2`), extract PDF/ZIP/range errors, and no
+   horizontal scrolling at 390px and 1024px.
 
 ## Current architecture
 
@@ -82,6 +105,10 @@ The current test service was started on port 8001; do not assume it survives a
 new task. Initial onboarding also started a service on port 8000; restart the
 appropriate development service to load updated code/templates. No service was
 published or deployed to the user's intranet by these development checks.
+
+Note: in this container Chromium is at `/opt/pw-browsers/chromium`
+(`CHROMIUM_PATH=/opt/pw-browsers/chromium`). Waitress caches templates; restart the
+service after template edits.
 
 All requested implementation milestones are complete. Next work should start
 from user UI feedback or a representative internal-document compatibility case.

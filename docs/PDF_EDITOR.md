@@ -6,13 +6,15 @@ or browser CDN is required in production.
 
 ## Using the workspace
 
-1. **Open PDF** imports a document. Opening another PDF inserts its pages after
-   the current page. The left sidebar selects pages; drag cards or use Move up /
-   Move down to reorder. Blank, Duplicate, Delete, Rotate and Extract page operate
-   on the current page. Deletion can be undone. Rotation rotates the entire page,
-   including added marks.
+1. **Open PDF** imports a document; you can also drop PDF files onto the
+   workspace. Opening another PDF (or **Insert PDF**) inserts its pages after the
+   current page. The left sidebar selects pages; drag cards or use Up / Down to
+   reorder. The **Current page** tools (Rotate, Duplicate, Extract, Delete, Add
+   blank page) operate on the current page. Deletion can be undone. Rotation
+   rotates the entire page, including added marks.
 2. **Text** places a new text box. Edit its content, font, size, color and geometry
-   on the right, then Apply changes. Line breaks are supported; text must fit its
+   on the right, then Apply changes. The Properties panel only shows the fields
+   that apply to the selected object or active tool. Line breaks are supported; text must fit its
    box. Drag a selected object to move it, or drag its lower-right handle to resize.
 3. **Highlight** lets you select existing text or drag an area. **Comment** places
    a note, with its content listed in the right sidebar. Notes and highlights are
@@ -37,6 +39,11 @@ or browser CDN is required in production.
    the current page, including its edits. **Save project** downloads an editable
    `.pdfproject` containing source PDFs, images, notes, page order and text edits.
    **Open project** restores it, including in a fresh browser tab.
+9. **Keyboard shortcuts**: V Select, T Text, E Edit existing, H Highlight,
+   C Comment, D Draw, B Box, L Line, Del delete, Esc cancel, +/− zoom,
+   PgUp/PgDn change page, Ctrl/⌘ Z undo (Shift or Ctrl+Y to redo), Ctrl/⌘ S save
+   project, Ctrl/⌘ O open. The list is also under *Keyboard shortcuts* in the
+   editor's right panel.
 
 Undo/redo is bounded to 60 states. Keyboard shortcuts: Ctrl/Command Z, Shift Z for
 redo, Ctrl/Command S to download a project, V for selection, Escape to cancel image

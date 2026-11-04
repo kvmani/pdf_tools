@@ -7,7 +7,7 @@ retain their own terms; ship their notices with redistributed artifacts.
 |---|---|---|
 | PDF.js / pdfjs-dist 6.5.438 | Browser rendering, text layer and fonts | Apache-2.0; `app/static/vendor/pdfjs/LICENSE` |
 | PDF.js standard fonts / codecs | Local font and image support | Individual notices in `standard_fonts/` and `wasm/` |
-| Lucide static icons 1.68.0 | Editor controls | ISC / included upstream notices; `app/static/vendor/lucide/LICENSE` |
+| Lucide static icons 1.68.0 | Icons on all pages (subset sprite built from the verified tarball) | ISC / included upstream notices; `app/static/vendor/lucide/LICENSE` |
 | pypdfium2 5.14.0 / PDFium | Qualified native text-object editing | Permissive licenses and bundled third-party terms; retain wheel license inventory |
 | ReportLab 4.x | Text, image and vector composition | BSD-style terms in the installed distribution |
 | pypdf 6.x | Existing page operations and PDF annotations | BSD-3-Clause terms in the installed distribution |

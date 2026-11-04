@@ -11,6 +11,7 @@ let viewport = null, baseWidth = 595, baseHeight = 842, generation = 0, renderin
 let gesture = null, draggedPage = null, textLayer = null, assetKind = 'image';
 let previewCache = new Map();
 let existingAnnotations = [], sourceViewport = null;
+let searchQuery = '', searchPage = -1;
 const help = {
     select: 'Click an object to adjust it. Drag to move; use the corner handle to resize.',
     text: 'Click the page to place a text box, then edit its text and size here.',
@@ -148,7 +149,7 @@ async function renderPage(token) {
         viewport = {width: (model.rotation%180 ? baseHeight : baseWidth)*zoom, height: (model.rotation%180 ? baseWidth : baseHeight)*zoom};
     }
     if (token !== generation) return;
-    const cv = $('pdf-canvas'); const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    const cv = $('pdf-canvas'); const ratio = Math.min(window.devicePixelRatio || 1, 2, 4096/Math.max(viewport.width,viewport.height));
     cv.width = Math.floor(viewport.width*ratio); cv.height = Math.floor(viewport.height*ratio);
     cv.style.width = `${viewport.width}px`; cv.style.height = `${viewport.height}px`;
     $('paper').style.width = `${viewport.width}px`; $('paper').style.height = `${viewport.height}px`;
@@ -159,6 +160,9 @@ async function renderPage(token) {
         const content = await pdfPage.getTextContent();
         textLayer = new pdfjs.TextLayer({textContentSource: content, container: $('text-layer'), viewport});
         await textLayer.render();
+        if (searchQuery) for (const span of $('text-layer').querySelectorAll('span')) {
+            if (span.textContent.toLocaleLowerCase().includes(searchQuery)) span.classList.add('search-result');
+        }
     } else { context.fillStyle = 'white'; context.fillRect(0,0,cv.width,cv.height); }
     if (token !== generation) return;
     if (!model.thumb || model.thumbRotation !== model.rotation) {
@@ -386,6 +390,24 @@ async function exportPDF(single=false){
     catch(error){fail(error);}finally{busy=false;refresh();}
 }
 $('export').onclick=()=>exportPDF();$('extract').onclick=()=>exportPDF(true);
+$('find-next').onclick=async()=>{
+    if (busy || !pages.length) return;
+    const query=$('search-query').value.trim().toLocaleLowerCase();
+    if(!query){searchQuery='';refresh();return;}
+    if(query!==searchQuery){searchPage=-1;searchQuery=query;}
+    busy=true;notify('Searching document…','busy');
+    try{
+        for(let offset=1;offset<=pages.length;offset++){
+            const index=(searchPage+offset)%pages.length,p=pages[index];let content='';
+            if(p.source!==null){const pdfPage=await sources[p.source].doc.getPage(p.page+1);const tc=await pdfPage.getTextContent();content=tc.items.map(i=>i.str||'').join(' ');}
+            for(const edit of p.textEdits)content=content.replace(edit.original,edit.text);
+            content+=' '+p.marks.filter(m=>m.type==='text'||m.type==='comment').map(m=>m.text).join(' ');
+            if(content.toLocaleLowerCase().includes(query)){active=index;searchPage=index;selected=null;notify(`Found on page ${index+1}. Find next cycles through matching pages.`);return;}
+        }
+        notify('No matching text found. Scanned pages have no searchable text.');
+    }catch(error){fail(error);}finally{busy=false;refresh();}
+};
+$('search-query').addEventListener('keydown',e=>{if(e.key==='Enter')$('find-next').click();});
 function b64(bytes){let s='';for(let i=0;i<bytes.length;i+=32768)s+=String.fromCharCode(...bytes.subarray(i,i+32768));return btoa(s);}
 function fromB64(value){const s=atob(value);return Uint8Array.from(s,c=>c.charCodeAt(0));}
 $('save-project').onclick=()=>{

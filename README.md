@@ -4,6 +4,11 @@ PDF Tools Service provides simple browser-based utilities for working with PDFs.
 
 ## Features
 
+- **PDF Editor** at `/pdf_tools/editor`: text, highlights, comments, drawings,
+  images/signature images, page organization, undo/redo and editable project backups.
+  Existing-text edits are deliberately restricted to supported standard-font text.
+  See the [editor guide](docs/PDF_EDITOR.md) and [UI screenshots](docs/screenshots/README.md).
+
 - **Merge** any number of PDFs with optional page ranges, custom output filenames and drag‑and‑drop reordering.
 - **Extract** selected pages from one PDF into a new document or export them as images. Optional previews help confirm page selection.
 - Minimal HTML interface served by Flask.

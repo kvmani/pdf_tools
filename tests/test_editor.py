@@ -132,3 +132,60 @@ def test_editor_http_export_and_invalid_inputs(client):
     assert client.post('/pdf_tools/editor/export', data={'manifest': '{}'}).status_code == 400
     assert client.post('/pdf_tools/editor/inspect').status_code == 400
     assert client.post('/pdf_tools/editor/inspect', data={'file': (io.BytesIO(b'bad'), 'bad.pdf')}).status_code == 400
+
+
+def test_blank_document_without_source_pdf():
+    output = export_document([], {}, {'version': 1, 'pages': [
+        {'source': None, 'marks': [dict(type='text', text='A new document', x=30, y=30, w=200, h=30)]}
+    ]})
+    assert 'A new document' in PdfReader(output).pages[0].extract_text()
+
+
+def test_page_rotation_also_rotates_added_content():
+    import pypdfium2 as pdfium
+    page = spec(); page['rotation'] = 90
+    page['marks'] = [dict(type='rectangle', x=10, y=15, w=30, h=20, color='#ff0000', stroke=4)]
+    with pdfium.PdfDocument(export([page]).getvalue()) as doc:
+        with closing(doc[0]) as p:
+            bitmap = p.render(scale=1)
+            image = bitmap.to_pil()
+            assert image.size == (300, 400)
+            red = image.getpixel((300-25, 10))
+            assert red[0] > 200 and red[1] < 80
+            bitmap.close()
+
+
+def test_existing_annotations_survive_editing_and_duplication():
+    page = spec(); page['marks'] = [dict(type='comment', x=20, y=20, w=24, h=24, text='Original note')]
+    data = export([page]).getvalue()
+    result = PdfReader(export([spec(), spec()], data=data))
+    assert all(p['/Annots'][0].get_object()['/Contents'] == 'Original note' for p in result.pages)
+
+
+def test_corrupt_signature_image_and_missing_sources_are_rejected():
+    page = spec(); page['marks'] = [dict(type='signature', x=10, y=10, w=50, h=25, asset='asset-1')]
+    with pytest.raises(ValueError, match='image could not be read'):
+        export([page], {'asset-1': b'not a real image'})
+    with pytest.raises(ValueError):
+        export_document([], {}, {'version': 1, 'pages': [spec()]})
+
+
+def test_form_documents_are_rejected_explicitly():
+    from pypdf.generic import ArrayObject, DictionaryObject, NameObject
+    writer = PdfWriter(); writer.add_blank_page(400, 300)
+    writer._root_object[NameObject('/AcroForm')] = DictionaryObject({NameObject('/Fields'): ArrayObject()})
+    stream = io.BytesIO(); writer.write(stream)
+    with pytest.raises(ValueError, match='forms are not supported'):
+        inspect_document(stream.getvalue())
+
+
+def test_workspace_has_offline_assets_and_controls(client):
+    response = client.get('/pdf_tools/editor')
+    assert response.status_code == 200
+    assert b'data-tool="highlight"' in response.data
+    assert b'id="signature"' in response.data
+    assert b'cdn.' not in response.data
+    assert client.get('/pdf_tools/static/vendor/lucide/icons.svg').status_code == 200
+    worker = client.get('/pdf_tools/static/vendor/pdfjs/build/pdf.worker.mjs')
+    assert worker.status_code == 200
+    assert 'javascript' in worker.mimetype

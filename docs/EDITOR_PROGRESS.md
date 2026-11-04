@@ -14,9 +14,9 @@ maintained so future sessions can resume. See `AGENTS.md`.
 ## Milestones
 
 1. [complete] Record scope, persistence agreement and implementation plan.
-2. [in progress] Validated document inspection/export API, native text-edit adapter,
+2. [complete] Validated document inspection/export API, native text-edit adapter,
    page operations, annotations and image/signature embedding; backend tests.
-3. [pending] Offline browser workspace, editing tools, history, page tools and export.
+3. [in progress] Offline browser workspace, editing tools, history, page tools and export.
 4. [pending] Browser end-to-end checks, offline asset audit, user/admin documentation.
 
 ## Architecture decision
@@ -37,7 +37,17 @@ and local starting commit: `4fbe4d7`.
 
 ## Resume here
 
-Implement milestone 2, then update this file with actual results and commit/push.
+Implement milestone 3. Backend endpoints are `/pdf_tools/editor/inspect` and
+`/pdf_tools/editor/export`; the workspace route currently has a placeholder template.
+`tests/test_editor.py` has 17 passing cases, including native text replacement,
+independent duplicate edits, overflow/input rejection, comments/highlights/signatures,
+and rendered placement on cropped pages at all four rotations. Native handles are
+explicitly closed and all PDFium document access is serialized with one lock.
+Interactive/signed forms and nonstandard UserUnit pages are rejected rather than
+silently damaging unsupported content. New text uses standard fonts/Western European
+characters; existing text uses horizontal unembedded standard fonts and printable
+ASCII replacements that fit the original width. Existing PDF annotations are
+preserved; edited base pages retain their original crop and coordinate system.
 Use `/workspace/pdf_tools`, `.venv/bin/python -m pytest -q`. The initial branch was
 `work`; `main` now tracks `origin/main`. Never force-push. Research from the prior
 session is at `/workspace/pdf-editor-research/RESEARCH.md` when available; this

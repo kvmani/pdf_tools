@@ -22,10 +22,12 @@ pdf_tools_bp = Blueprint(
 
 from .controllers.merge_controller import merge_bp
 from .controllers.extract_controller import extract_bp
+from .controllers.editor_controller import editor_bp
 from .services.metrics import request_latency, request_count, metrics_response
 
 pdf_tools_bp.register_blueprint(merge_bp)
 pdf_tools_bp.register_blueprint(extract_bp)
+pdf_tools_bp.register_blueprint(editor_bp)
 
 
 @pdf_tools_bp.route("/")
@@ -119,7 +121,7 @@ def create_app(config_path: str | None = None) -> Flask:
         response.headers.setdefault("Referrer-Policy", "no-referrer")
         response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
         response.headers.setdefault("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'")
-        if request.path.startswith("/pdf_tools/metadata"):
+        if request.path.startswith(("/pdf_tools/metadata", "/pdf_tools/editor")):
             response.headers.setdefault("Cache-Control", "no-store")
         return response
 

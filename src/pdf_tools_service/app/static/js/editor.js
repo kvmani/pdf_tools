@@ -22,6 +22,12 @@ const help = {
     rectangle: 'Drag to draw an outline. Boxes are not redaction.',
     line: 'Drag to draw a line. Adjust its color and width here.'
 };
+const toolNames = {select: 'Select', text: 'Text', edit: 'Edit existing text', highlight: 'Highlight', comment: 'Comment', ink: 'Draw', rectangle: 'Box', line: 'Line'};
+const markNames = {text: 'Text box', comment: 'Comment', highlight: 'Highlight', ink: 'Drawing', rectangle: 'Box', line: 'Line', image: 'Image', signature: 'Signature'};
+// Which property fields matter for a selected object, or as defaults for a tool.
+const markFields = {text: ['text','color','size','font','geometry'], comment: ['text','geometry'], highlight: ['color','geometry'], rectangle: ['color','stroke','geometry'], ink: ['color','stroke'], line: ['color','stroke'], image: ['geometry'], signature: ['geometry']};
+const toolFields = {select: [], edit: [], text: ['color','size','font'], comment: [], highlight: ['color'], ink: ['color','stroke'], rectangle: ['color','stroke'], line: ['color','stroke']};
+const shortcuts = {v: 'select', t: 'text', e: 'edit', h: 'highlight', c: 'comment', d: 'ink', b: 'rectangle', l: 'line'};
 
 for (const button of document.querySelectorAll('[data-icon]')) {
     const svg = document.createElementNS(ns, 'svg');
@@ -41,7 +47,6 @@ function chooseTool(next) {
     tool = next; selected = null;
     for (const b of document.querySelectorAll('[data-tool]')) b.setAttribute('aria-pressed', String(b.dataset.tool === tool));
     $('paper').classList.toggle('selecting', tool === 'highlight');
-    $('tool-help').textContent = help[tool];
     if (tool === 'highlight') $('color').value = '#ffdd44';
     drawMarks(); properties();
 }
@@ -63,8 +68,10 @@ function refresh() {
     for (const id of ['export','save-project','extract','duplicate','remove-page','rotate','move-up','move-down','previous','next']) $(id).disabled = !pages.length || busy;
     drawPageList(); properties();
     const token = ++generation;
+    $('paper').dataset.rendering = 'true';
     // Serialize canvas rendering; PDF.js forbids concurrent renders into a canvas.
-    rendering = rendering.catch(() => {}).then(() => token === generation ? renderPage(token) : undefined).catch(fail);
+    rendering = rendering.catch(() => {}).then(() => token === generation ? renderPage(token) : undefined).catch(fail)
+        .finally(() => { if (token === generation) delete $('paper').dataset.rendering; });
 }
 function drawPageList() {
     $('pages').replaceChildren();
@@ -83,6 +90,23 @@ function drawPageList() {
         card.ondrop = e => { e.preventDefault(); if (draggedPage !== null && draggedPage !== index) mutate(() => { const [p] = pages.splice(draggedPage, 1); pages.splice(index, 0, p); active = index; }); draggedPage = null; };
         $('pages').append(card);
     });
+}
+// Fill in thumbnails for pages that have not been viewed yet, one at a time.
+let thumbing = false;
+async function generateThumbs() {
+    if (thumbing) return; thumbing = true;
+    try {
+        for (const model of pages) {
+            if (model.thumb || model.source === null || !sources[model.source]) continue;
+            const pdfPage = await sources[model.source].doc.getPage(model.page + 1);
+            if (model.thumb) continue;
+            const base = pdfPage.getViewport({scale: 1, rotation: (pdfPage.rotate + model.rotation) % 360});
+            const v = pdfPage.getViewport({scale: 120 / Math.max(base.width, base.height), rotation: (pdfPage.rotate + model.rotation) % 360});
+            const canvas = document.createElement('canvas'); canvas.width = Math.ceil(v.width); canvas.height = Math.ceil(v.height);
+            await pdfPage.render({canvasContext: canvas.getContext('2d'), viewport: v}).promise;
+            if (!model.thumb) { model.thumb = canvas.toDataURL(); model.thumbRotation = model.rotation; drawPageList(); }
+        }
+    } catch { /* thumbnails are optional */ } finally { thumbing = false; }
 }
 async function responseOrError(response) {
     if (!response.ok) {
@@ -120,6 +144,7 @@ async function openFiles(files) {
         pages.splice(position, 0, ...additions); active = position;
         $('document-name').textContent = sources[0].name;
         notify('Document opened. Choose a tool to begin. Save a project backup to keep editable changes.');
+        setTimeout(generateThumbs, 300);
     } catch (error) { for (const s of loaded) if (!sources.includes(s)) await s.doc.loadingTask.destroy(); fail(error); }
     finally { busy = false; refresh(); }
 }
@@ -236,8 +261,13 @@ function drawMarks() {
 }
 function chooseSelection() { drawMarks(); properties(); }
 function properties() {
-    const mark = selectedMark();
-    $('properties-title').textContent = selected?.kind === 'edit' ? 'Replace existing text' : mark ? `${mark.type[0].toUpperCase()+mark.type.slice(1)} properties` : 'Tool properties';
+    const mark = selectedMark(), editing = selected?.kind === 'edit';
+    $('properties-title').textContent = editing ? 'Replace existing text' : mark ? markNames[mark.type] || 'Object' : tool === 'select' ? 'Nothing selected' : `${toolNames[tool]} tool`;
+    $('tool-help').textContent = editing ? 'Type the replacement on one line. It must fit the original width.' : mark ? 'Drag on the page to move, or use the corner handle to resize. Adjust values here and apply.' : tool === 'select' ? 'Click an object on the page to change it, or pick a tool above to add something new.' : help[tool];
+    const fields = new Set(editing ? ['text','actions'] : mark ? [...markFields[mark.type] || [], 'actions'] : toolFields[tool] || []);
+    for (const node of document.querySelectorAll('[data-field]')) node.hidden = !fields.has(node.dataset.field);
+    $('delete-object').hidden = !mark;
+    $('stroke-value').textContent = $('stroke').value;
     $('apply').disabled = !selected || busy;
     $('delete-object').disabled = !mark || busy;
     for (const key of ['x','y','w','h']) { $(`object-${key}`).value = mark ? Math.round(mark[key]*10)/10 : ''; $(`object-${key}`).disabled = !mark || mark.type==='ink' || mark.type==='line'; }
@@ -247,6 +277,7 @@ function properties() {
     } else if (mark) {
         $('object-text').value = mark.text || ''; $('color').value = mark.color || '#183b56';
         $('font-size').value = mark.size || 16; $('font').value=mark.font || 'Helvetica'; $('stroke').value=mark.stroke || 2;
+        $('stroke-value').textContent = $('stroke').value;
     }
 }
 function eventPoint(e) {
@@ -433,16 +464,34 @@ $('project-input').onchange=async e=>{
         ++generation;await rendering.catch(()=>{});textLayer?.cancel();
         for(const s of sources)await s.doc.loadingTask.destroy();for(const a of Object.values(assets))URL.revokeObjectURL(a.url);for(const d of previewCache.values())await d.loadingTask.destroy();previewCache.clear();
         sources=staged;assets=newAssets;pages=project.pages.map(p=>({...p,id:uid(),textEdits:p.textEdits||[],marks:p.marks.map(m=>({...m,id:uid()}))}));active=0;selected=null;undo=[];redo=[];dirty=false;
-        $('document-name').textContent=file.name;notify('Project restored. Your pages, comments and images are editable again.');
+        setTimeout(generateThumbs,300);$('document-name').textContent=file.name;notify('Project restored. Your pages, comments and images are editable again.');
     }catch(error){for(const s of staged)if(!sources.includes(s))await s.doc.loadingTask.destroy();for(const a of Object.values(newAssets))if(!Object.values(assets).includes(a))URL.revokeObjectURL(a.url);fail(error);}
     finally{busy=false;refresh();}
 };
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
 document.addEventListener('keydown',e=>{
     if(e.target.closest('input,textarea,select'))return;
-    if(e.ctrlKey||e.metaKey){if(e.key.toLowerCase()==='z'){e.preventDefault();history(e.shiftKey?'redo':'undo');}if(e.key.toLowerCase()==='s'){e.preventDefault();$('save-project').click();}return;}
+    if(e.ctrlKey||e.metaKey){const k=e.key.toLowerCase();if(k==='z'){e.preventDefault();history(e.shiftKey?'redo':'undo');}if(k==='y'){e.preventDefault();history('redo');}if(k==='s'){e.preventDefault();$('save-project').click();}if(k==='o'){e.preventDefault();$('open').click();}return;}
     if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();deleteSelected();}
     if(e.key==='Escape'){pendingImage=null;endGesture(true);chooseTool('select');}
-    if(e.key.toLowerCase()==='v')chooseTool('select');
+    if(e.altKey)return;
+    const key=e.key.toLowerCase();
+    if(shortcuts[key]&&!busy){e.preventDefault();chooseTool(shortcuts[key]);}
+    if(e.key==='+'||e.key==='='){e.preventDefault();$('zoom-in').click();}
+    if(e.key==='-'){e.preventDefault();$('zoom-out').click();}
+    if(e.key==='PageDown'){e.preventDefault();$('next').click();}
+    if(e.key==='PageUp'){e.preventDefault();$('previous').click();}
 });
+$('stroke').addEventListener('input',()=>{$('stroke-value').textContent=$('stroke').value;});
+// Drop PDF files onto the workspace to open them (or insert them after the current page).
+{
+    const area=$('work-area'),overlay=$('drop-overlay');let depth=0;
+    const hasFiles=e=>[...(e.dataTransfer?.types||[])].includes('Files');
+    area.addEventListener('dragenter',e=>{if(!hasFiles(e))return;e.preventDefault();depth++;overlay.hidden=false;});
+    area.addEventListener('dragover',e=>{if(hasFiles(e))e.preventDefault();});
+    area.addEventListener('dragleave',()=>{if(--depth<=0){depth=0;overlay.hidden=true;}});
+    area.addEventListener('drop',e=>{if(!hasFiles(e))return;e.preventDefault();depth=0;overlay.hidden=true;
+        const files=[...e.dataTransfer.files].filter(f=>f.type==='application/pdf'||/\.pdf$/i.test(f.name));
+        if(files.length)openFiles(files);else notify('Only PDF files can be opened here. Use Image or Signature for pictures.','error');});
+}
 refresh();

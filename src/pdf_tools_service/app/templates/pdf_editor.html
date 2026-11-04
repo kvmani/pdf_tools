@@ -2,41 +2,62 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PDF Editor · Intranet workspace</title>
 <link rel="stylesheet" href="{{ url_for('pdf_tools.static', filename='vendor/pdfjs/web/pdf_viewer.css') }}">
+<link rel="stylesheet" href="{{ url_for('pdf_tools.static', filename='theme.css') }}">
 <link rel="stylesheet" href="{{ url_for('pdf_tools.static', filename='editor.css') }}">
 <script type="module" src="{{ url_for('pdf_tools.static', filename='js/editor.js') }}"></script>
 </head><body data-api="{{ url_for('pdf_tools.editor.workspace').rstrip('/') }}">
-<header class="editor-header"><a class="brand" href="{{ url_for('pdf_tools.index') }}">PDF<span>WORKSPACE</span></a>
-<div class="document-title"><h1>PDF Editor</h1><span id="document-name">A private space for your paperwork</span></div>
-<div class="header-actions"><button id="open" data-icon="folder-open">Open PDF</button><button id="restore" data-icon="folder-up">Open project</button><button id="save-project" data-icon="save">Save project</button><button id="export" class="primary" data-icon="download">Download PDF</button></div></header>
+<header class="editor-header">
+  <a class="brand" href="{{ url_for('pdf_tools.index') }}" title="Back to PDF Tools"><span class="brand-mark" data-icon="file-text"></span><span class="brand-name">PDF Tools</span></a>
+  <span class="header-divider" aria-hidden="true"></span>
+  <div class="document-title"><h1>PDF Editor</h1><span id="document-name">A private space for your paperwork</span></div>
+  <div class="header-actions">
+    <button id="open" data-icon="folder-open" title="Open a PDF (Ctrl/⌘ O)"><span class="label">Open PDF</span></button>
+    <button id="restore" data-icon="folder-up" title="Open a saved .pdfproject file"><span class="label">Open project</span></button>
+    <button id="save-project" data-icon="save" title="Save an editable project backup (Ctrl/⌘ S)"><span class="label">Save project</span></button>
+    <button id="export" class="primary" data-icon="download" title="Download the finished PDF"><span class="label">Download PDF</span></button>
+  </div>
+</header>
 <input id="pdf-input" type="file" accept="application/pdf,.pdf" multiple hidden>
 <input id="project-input" type="file" accept=".pdfproject,application/json" hidden>
 <input id="image-input" type="file" accept="image/png,image/jpeg" hidden>
 <div class="toolbar" role="toolbar" aria-label="Editing tools">
-<div class="tool-group"><button data-tool="select" data-icon="mouse-pointer-2" aria-pressed="true" title="Select and move objects (V)">Select</button><button data-tool="text" data-icon="type" aria-pressed="false">Text</button><button data-tool="edit" data-icon="text-cursor-input" aria-pressed="false">Edit existing</button></div>
-<div class="tool-group"><button data-tool="highlight" data-icon="highlighter" aria-pressed="false">Highlight</button><button data-tool="comment" data-icon="message-square-text" aria-pressed="false">Comment</button><button data-tool="ink" data-icon="pencil" aria-pressed="false">Draw</button><button data-tool="rectangle" data-icon="square" aria-pressed="false">Box</button><button data-tool="line" data-icon="slash" aria-pressed="false">Line</button></div>
-<div class="tool-group"><button id="image" data-icon="image-plus">Image</button><button id="signature" data-icon="signature">Signature</button></div>
-<div class="tool-group"><button id="undo" data-icon="undo-2" title="Undo (Ctrl/⌘ Z)">Undo</button><button id="redo" data-icon="redo-2" title="Redo (Ctrl/⌘ Shift Z)">Redo</button></div>
+<div class="tool-group" aria-label="Select and text"><button data-tool="select" data-icon="mouse-pointer-2" aria-pressed="true" title="Select and move objects (V)">Select</button><button data-tool="text" data-icon="type" aria-pressed="false" title="Add a text box (T)">Text</button><button data-tool="edit" data-icon="text-cursor-input" aria-pressed="false" title="Edit existing simple text (E)">Edit existing</button></div>
+<div class="tool-group" aria-label="Markup"><button data-tool="highlight" data-icon="highlighter" aria-pressed="false" title="Highlight text or an area (H)">Highlight</button><button data-tool="comment" data-icon="message-square-text" aria-pressed="false" title="Add a comment (C)">Comment</button><button data-tool="ink" data-icon="pencil" aria-pressed="false" title="Draw freehand (D)">Draw</button><button data-tool="rectangle" data-icon="square" aria-pressed="false" title="Draw a box (B)">Box</button><button data-tool="line" data-icon="slash" aria-pressed="false" title="Draw a line (L)">Line</button></div>
+<div class="tool-group" aria-label="Insert"><button id="image" data-icon="image-plus" title="Insert a PNG or JPEG image">Image</button><button id="signature" data-icon="signature" title="Place a signature image">Signature</button></div>
+<div class="tool-group" aria-label="History"><button id="undo" data-icon="undo-2" title="Undo (Ctrl/⌘ Z)" aria-label="Undo"><span class="label">Undo</span></button><button id="redo" data-icon="redo-2" title="Redo (Ctrl/⌘ Shift Z)" aria-label="Redo"><span class="label">Redo</span></button></div>
 </div>
 <div id="notice" class="notice" role="status" aria-live="polite">Files stay in this tab until inspection/export on this intranet server. No server-side document storage.</div>
 <div class="editor-layout">
-<aside class="pages-panel" aria-label="Pages"><div class="panel-heading"><h2>Pages <span id="page-count">0</span></h2><button id="add-pdf" data-icon="file-plus-2" title="Insert pages from a PDF">PDF</button></div>
-<div class="page-actions"><button id="blank" data-icon="file">Blank</button><button id="duplicate" data-icon="copy">Duplicate</button><button id="remove-page" data-icon="trash-2">Delete</button></div>
-<div id="pages" class="page-list"></div>
-<div class="page-actions"><button id="move-up" data-icon="arrow-up">Move up</button><button id="move-down" data-icon="arrow-down">Move down</button><button id="rotate" data-icon="rotate-cw">Rotate</button><button id="extract" data-icon="file-output">Extract page</button></div>
-<p class="panel-note">Drag page cards to reorder. Save a project backup to resume later.</p></aside>
-<main id="work-area" class="work-area"><div class="canvas-toolbar"><div><button id="previous" data-icon="chevron-left" aria-label="Previous page"></button><span id="page-label">No document</span><button id="next" data-icon="chevron-right" aria-label="Next page"></button></div><div><button id="zoom-out" data-icon="minus" aria-label="Zoom out"></button><span id="zoom-label">100%</span><button id="zoom-in" data-icon="plus" aria-label="Zoom in"></button><button id="fit" data-icon="scan">Fit width</button></div></div>
-<section id="empty" class="empty-state"><span class="paper-symbol">PDF</span><p class="eyebrow">YOUR DOCUMENT. YOUR INTRANET.</p><h2>A little less paperwork.</h2><p>Mark up a report, add a signature, arrange your pages.<br>Everything you need, without leaving the office network.</p><button id="empty-open" class="primary" data-icon="folder-open">Open a PDF to begin</button><small>PNG/JPEG signatures · Comments & highlights · No cloud services</small></section>
+<aside class="pages-panel" aria-label="Pages">
+  <div class="panel-heading"><h2>Pages <span id="page-count">0</span></h2><button id="add-pdf" data-icon="file-plus-2" title="Insert pages from another PDF after the current page">Insert PDF</button></div>
+  <div id="pages" class="page-list"></div>
+  <div class="page-tools">
+    <p class="panel-label">Current page</p>
+    <div class="page-actions"><button id="move-up" data-icon="arrow-up" title="Move page up">Up</button><button id="move-down" data-icon="arrow-down" title="Move page down">Down</button><button id="rotate" data-icon="rotate-cw" title="Rotate 90° clockwise">Rotate</button><button id="duplicate" data-icon="copy" title="Duplicate page">Duplicate</button><button id="extract" data-icon="file-output" title="Download only this page as a PDF">Extract</button><button id="remove-page" data-icon="trash-2" class="danger" title="Delete page">Delete</button></div>
+    <button id="blank" class="wide" data-icon="file" title="Insert a blank A4 page after the current page">Add blank page</button>
+    <p class="panel-note">Drag page cards to reorder.</p>
+  </div>
+</aside>
+<main id="work-area" class="work-area"><div class="canvas-toolbar"><div class="pager"><button id="previous" data-icon="chevron-left" aria-label="Previous page" title="Previous page (Page Up)"></button><span id="page-label">No document</span><button id="next" data-icon="chevron-right" aria-label="Next page" title="Next page (Page Down)"></button></div><div class="zoom"><button id="zoom-out" data-icon="minus" aria-label="Zoom out" title="Zoom out (−)"></button><span id="zoom-label">100%</span><button id="zoom-in" data-icon="plus" aria-label="Zoom in" title="Zoom in (+)"></button><button id="fit" data-icon="scan" title="Fit page to width">Fit width</button></div></div>
+<section id="empty" class="empty-state"><div class="drop-target"><span class="empty-icon" data-icon="upload"></span><h2>Open a PDF to start editing</h2><p>Drop a PDF anywhere here, or choose one from your computer.<br>Everything stays on the office network.</p><button id="empty-open" class="primary large" data-icon="folder-open">Choose a PDF</button><ul class="empty-features"><li>Text, comments &amp; highlights</li><li>Images &amp; signature images</li><li>Reorder, rotate &amp; delete pages</li></ul></div></section>
 <div id="page-wrap" class="page-wrap" hidden><div id="paper" class="paper"><canvas id="pdf-canvas"></canvas><div id="text-layer" class="textLayer"></div><svg id="marks" xmlns="http://www.w3.org/2000/svg" aria-label="Document editing canvas"></svg></div></div>
+<div id="drop-overlay" class="drop-overlay" hidden><span>Drop to add PDF pages</span></div>
 </main>
-<aside class="properties" aria-label="Properties"><div class="document-search"><label>Find in document<input id="search-query" type="search" placeholder="Search text…"></label><button id="find-next" class="wide">Find next occurrence</button></div><p class="eyebrow">MAKE IT YOURS</p><h2 id="properties-title">Select an object</h2><p id="tool-help" class="helper">Click an object to adjust it. Drag to move; use its corner handle to resize.</p>
-<label>Text or comment<textarea id="object-text" rows="4" placeholder="Enter your text"></textarea></label>
-<div class="property-grid"><label>Color<input id="color" type="color" value="#183b56"></label><label>Size (pt)<input id="font-size" type="number" min="6" max="96" value="16"></label></div>
-<label>Font<select id="font"><option value="Helvetica">Helvetica</option><option value="Helvetica-Bold">Helvetica Bold</option><option value="Times-Roman">Times Roman</option><option value="Times-Bold">Times Bold</option><option value="Courier">Courier</option></select></label>
-<label>Line width<input id="stroke" type="range" min="1" max="12" value="2"></label>
-<div class="property-grid"><label>X<input id="object-x" type="number" step="1"></label><label>Y<input id="object-y" type="number" step="1"></label><label>Width<input id="object-w" type="number" min="1" step="1"></label><label>Height<input id="object-h" type="number" min="1" step="1"></label></div>
-<button id="apply" class="primary wide" data-icon="check">Apply changes</button><button id="delete-object" class="wide" data-icon="trash-2">Delete selected object</button>
-<section class="comments"><h3>Page comments</h3><div id="comments"><p class="helper">No comments on this page.</p></div></section>
-<details><summary>Editing & privacy notes</summary><p>Existing text: simple horizontal, unembedded Helvetica, Times and Courier. Printable English replacements must fit the original width.</p><p>Images and signatures become ordinary PDF content. Signatures are visual marks.</p><p>Save a project to resume. Unsaved edits are lost on closing this tab. Projects include original files and signature images: keep them private.</p><p>Select text to highlight, or drag an area. Highlights and boxes do not remove content. This editor does not redact.</p><p>New text supports Western European characters. Interactive/signed forms and protected PDFs need an unlocked, flattened copy.</p></details>
+<aside class="properties" aria-label="Properties">
+  <div class="document-search"><label for="search-query" class="panel-label">Find in document</label><div class="search-row"><input id="search-query" type="search" placeholder="Search text…"><button id="find-next" data-icon="chevron-right" aria-label="Find next occurrence" title="Find next occurrence (Enter)"></button></div></div>
+  <section class="prop-section">
+    <h2 id="properties-title">Select an object</h2>
+    <p id="tool-help" class="helper">Click an object to adjust it. Drag to move; use its corner handle to resize.</p>
+    <label data-field="text">Text or comment<textarea id="object-text" rows="4" placeholder="Enter your text"></textarea></label>
+    <div class="property-grid"><label data-field="color">Color<input id="color" type="color" value="#183b56"></label><label data-field="size">Size (pt)<input id="font-size" type="number" min="6" max="96" value="16"></label></div>
+    <label data-field="font">Font<select id="font"><option value="Helvetica">Helvetica</option><option value="Helvetica-Bold">Helvetica Bold</option><option value="Times-Roman">Times Roman</option><option value="Times-Bold">Times Bold</option><option value="Courier">Courier</option></select></label>
+    <label data-field="stroke">Line width <output id="stroke-value">2</output><input id="stroke" type="range" min="1" max="12" value="2"></label>
+    <div class="property-grid" data-field="geometry"><label>X<input id="object-x" type="number" step="1"></label><label>Y<input id="object-y" type="number" step="1"></label><label>Width<input id="object-w" type="number" min="1" step="1"></label><label>Height<input id="object-h" type="number" min="1" step="1"></label></div>
+    <div class="prop-actions" data-field="actions"><button id="apply" class="primary wide" data-icon="check">Apply changes</button><button id="delete-object" class="wide danger" data-icon="trash-2" title="Delete (Del)">Delete object</button></div>
+  </section>
+  <section class="comments"><h3 class="panel-label">Comments on this page</h3><div id="comments"><p class="helper">No comments on this page.</p></div></section>
+  <details><summary>Keyboard shortcuts</summary><dl class="shortcuts"><dt>V</dt><dd>Select</dd><dt>T</dt><dd>Text</dd><dt>E</dt><dd>Edit existing text</dd><dt>H</dt><dd>Highlight</dd><dt>C</dt><dd>Comment</dd><dt>D</dt><dd>Draw</dd><dt>B</dt><dd>Box</dd><dt>L</dt><dd>Line</dd><dt>Del</dt><dd>Delete selected object</dd><dt>Esc</dt><dd>Cancel / back to Select</dd><dt>+ / −</dt><dd>Zoom</dd><dt>PgUp / PgDn</dt><dd>Previous / next page</dd><dt>Ctrl Z</dt><dd>Undo (add Shift to redo)</dd><dt>Ctrl S</dt><dd>Save project</dd><dt>Ctrl O</dt><dd>Open PDF</dd></dl></details>
+  <details><summary>Editing &amp; privacy notes</summary><p>Existing text: simple horizontal, unembedded Helvetica, Times and Courier. Printable English replacements must fit the original width.</p><p>Images and signatures become ordinary PDF content. Signatures are visual marks.</p><p>Save a project to resume. Unsaved edits are lost on closing this tab. Projects include original files and signature images: keep them private.</p><p>Select text to highlight, or drag an area. Highlights and boxes do not remove content. This editor does not redact.</p><p>New text supports Western European characters. Interactive/signed forms and protected PDFs need an unlocked, flattened copy.</p></details>
 </aside></div>
-<footer><span>LOCAL FIRST · AIR-GAP READY</span><span id="save-state">No changes</span><a href="{{ url_for('pdf_tools.help_page') }}">PDF Tools guide</a></footer>
+<footer><span class="footer-badge" data-icon="shield-check">Local first · air-gap ready</span><span id="save-state">No changes</span><a href="{{ url_for('pdf_tools.help_page') }}">PDF Tools guide</a></footer>
 </body></html>

@@ -14,7 +14,9 @@ const base=process.env.EDITOR_URL || 'http://127.0.0.1:8001/pdf_tools/editor';
  const errors=[],external=[]; await context.route('**/*',route=>{const u=new URL(route.request().url());if(u.origin!==new URL(base).origin){external.push(u.href);return route.abort();}return route.continue();});
  const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
  await page.goto(base);await page.screenshot({path:path.join(shots,'01-editor-empty.png'),fullPage:true});await page.locator('#pdf-input').setInputFiles(path.join(fixture,'sample.pdf'));await page.waitForSelector('#paper[data-ready]');
- async function clickPoint(x,y){const b=await page.locator('#paper').boundingBox();await page.mouse.click(b.x+x,b.y+y);}
+ // Wait until the page canvas and editing layer have finished re-rendering.
+async function settled(){await page.waitForSelector('#paper[data-ready]:not([data-rendering])');}
+async function clickPoint(x,y){const b=await page.locator('#paper').boundingBox();await page.mouse.click(b.x+x,b.y+y);}
  await page.locator('[data-tool="text"]').click();await clickPoint(48,420);await page.locator('#object-text').fill('Reviewed for internal circulation');await page.locator('#font-size').fill('12');await page.locator('#apply').click();await page.waitForTimeout(200);
  assert.match(await page.locator('#notice').innerText(),/Changes applied/);
  await page.locator('[data-tool="comment"]').click();await clickPoint(480,260);await page.locator('#object-text').fill('Please confirm the maintenance window with the facilities team.');await page.locator('#apply').click();
@@ -30,8 +32,8 @@ const base=process.env.EDITOR_URL || 'http://127.0.0.1:8001/pdf_tools/editor';
  await page.screenshot({path:path.join(shots,'02-editor-annotations.png'),fullPage:true});
  await page.locator('#image-input').setInputFiles(path.join(fixture,'signature.png'));await page.waitForTimeout(200);await clickPoint(48,620);await page.locator('#object-w').fill('180');await page.locator('#object-h').fill('54');await page.locator('#apply').click();await page.locator('#delete-object').click();
  await page.locator('#signature').click();await page.locator('#image-input').setInputFiles(path.join(fixture,'signature.png'));await page.waitForTimeout(200);await clickPoint(48,650);await page.locator('#object-w').fill('160');await page.locator('#object-h').fill('48');await page.locator('#apply').click();
- const placed=await page.locator('#marks image').last().boundingBox();await page.mouse.move(placed.x+placed.width/2,placed.y+placed.height/2);await page.mouse.down();await page.mouse.move(placed.x+placed.width/2+20,placed.y+placed.height/2-10,{steps:8});await page.mouse.up();await page.waitForFunction(()=>Number(document.querySelector('#object-x').value)===68);
- const handle=await page.locator('#marks .resize-handle').boundingBox();await page.mouse.move(handle.x+4,handle.y+4);await page.mouse.down();await page.mouse.move(handle.x+24,handle.y+14,{steps:8});await page.mouse.up();await page.waitForFunction(()=>Number(document.querySelector('#object-w').value)===180);
+ await settled();const placed=await page.locator('#marks image').last().boundingBox();await page.mouse.move(placed.x+placed.width/2,placed.y+placed.height/2);await page.mouse.down();await page.mouse.move(placed.x+placed.width/2+20,placed.y+placed.height/2-10,{steps:8});await page.mouse.up();await page.waitForFunction(()=>Number(document.querySelector('#object-x').value)===68);
+ await settled();const handle=await page.locator('#marks .resize-handle').boundingBox();await page.mouse.move(handle.x+4,handle.y+4);await page.mouse.down();await page.mouse.move(handle.x+24,handle.y+14,{steps:8});await page.mouse.up();await page.waitForFunction(()=>Number(document.querySelector('#object-w').value)===180);
  await page.screenshot({path:path.join(shots,'03-editor-signature.png'),fullPage:true});
  await page.locator('[data-tool="edit"]').click();await page.locator('[data-edit]').first().waitFor();
  // Find the qualified object corresponding to Original text (native object index differs by document).

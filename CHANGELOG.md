@@ -2,6 +2,15 @@
 
 ## Unreleased — 2026-11-04
 
+- New **Split PDF** tool (`/pdf_tools/split`): equal parts, one file per page or
+  custom groups, previewed with thumbnails and downloaded as one ZIP.
+- New **Page numbers & watermark** tool (`/pdf_tools/stamp`): four number formats,
+  six positions, start number, size and page range, plus a diagonal watermark with
+  adjustable strength and a live preview. Correct on rotated and cropped pages.
+- Editor: draw-a-signature pad with session reuse; duplicate, copy to all pages,
+  copy/paste between pages, arrow-key nudging and Ctrl+scroll zoom.
+- `npm run test:browser` also runs `tests/browser/features.cjs`.
+
 - One shared design system (`theme.css`) across the home, merge, extract, help and
   editor pages, with a sticky navigation bar and bundled Lucide icons everywhere.
 - Merge: clickable multi-file drop zone, compact document rows with thumbnails,

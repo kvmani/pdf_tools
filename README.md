@@ -1,16 +1,18 @@
 # PDF Tools Service
 
-PDF Tools Service provides simple browser-based utilities for working with PDFs. It offers merging and page extraction capabilities through a lightweight Flask application. The service can run standalone or be integrated with the [ml_server](https://github.com/kvmani/ml_server) project.
+PDF Tools Service provides simple browser-based utilities for working with PDFs. It offers editing, merging, splitting, page numbering/watermarking and page extraction through a lightweight Flask application. The service can run standalone or be integrated with the [ml_server](https://github.com/kvmani/ml_server) project.
 
 ## Features
 
 - **PDF Editor** at `/pdf_tools/editor`: text, highlights, comments, drawings,
-  images/signature images, page organization, undo/redo and editable project backups.
+  images, drawn or uploaded signature images, page organization, undo/redo and editable project backups.
   Existing-text edits are deliberately restricted to supported standard-font text.
   See the [editor guide](docs/PDF_EDITOR.md) and [UI screenshots](docs/screenshots/README.md).
 
 - **Merge** any number of PDFs with optional page ranges, custom output filenames and drag‑and‑drop reordering.
-- **Extract** selected pages from one PDF into a new document or export them as images. Optional previews help confirm page selection.
+- **Split** one PDF at `/pdf_tools/split` into equal parts, single pages or custom groups, returned as a ZIP.
+- **Extract** selected pages from one PDF into a new document or export them as PNG images. Page thumbnails let you pick pages visually.
+- **Page numbers & watermark** at `/pdf_tools/stamp`: number pages in six positions and four formats, and stamp a diagonal text watermark, with a live preview.
 - Minimal HTML interface served by Flask.
 - JSON responses so the tools can also be called programmatically.
 
@@ -38,7 +40,8 @@ Start the server using the provided script:
 ```
 
 The server listens on `http://HOST:PORT` (default `0.0.0.0:8000`). Navigate to
-`/pdf_tools/merge` or `/pdf_tools/extract` to use the tools. When integrated
+`/pdf_tools/` for the home page, or directly to `/pdf_tools/editor`, `/pdf_tools/merge`,
+`/pdf_tools/split`, `/pdf_tools/extract` or `/pdf_tools/stamp`. When integrated
 with `ml_server`, mount the blueprint under the same prefix.
 
 For production, install the repository and use the Waitress entry point rather

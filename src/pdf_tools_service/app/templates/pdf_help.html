@@ -62,6 +62,9 @@
       <li>Locked and malformed files are rejected with safe messages.</li>
       <li>Raster export loses vector text and should be used only when needed.</li>
       <li>Processing is local and request-scoped; deployers must still configure proxy upload limits.</li>
+      <li>Split creates at most 200 files per request; each part keeps the original page content.</li>
+      <li>Page numbers and watermarks use standard PDF fonts (Western European characters) and become part of the page. A watermark is visual only and does not restrict copying.</li>
+      <li>PNG export from Extract is rendered in your browser at 150 dpi.</li>
     </ul>
   </article>
 </section>

@@ -23,11 +23,18 @@ or browser CDN is required in production.
 4. **Draw**, **Box** and **Line** add colored markup. Their appearance is merged
    into PDF page content on export. Boxes/highlights do not remove content and
    must never be used as redaction.
-5. **Image** or **Signature** opens a PNG/JPEG. Click the page to place it. Move it,
+5. **Image** opens a PNG/JPEG. **Signature** opens a pad: draw with a mouse, pen
+   or finger (black or blue ink), or choose *Upload image instead*. A drawn
+   signature is trimmed and placed as a transparent PNG, and signatures used in
+   the session can be placed again from the pad. Click the page to place it. Move it,
    resize it with the handle (preserving aspect ratio), or set exact dimensions
    in Properties. Transparency is retained. A transparent PNG signature works
    best; a JPEG's existing background is preserved. The image becomes ordinary
    PDF content on export. There is no certificate or cryptographic signing.
+   With an object selected, **Duplicate** (Ctrl/⌘ D) makes a copy, **All pages**
+   repeats it at the same position on every other page in one undoable step
+   (useful for initials), Ctrl/⌘ C and V copy it onto another page, and the arrow
+   keys nudge it by 1 pt (Shift: 10 pt).
 6. **Edit existing** shows green targets for supported text. Select one, enter a
    replacement and Apply. The server replaces the actual PDF text object and
    renders the resulting PDF back into the preview. Unsupported objects are not
@@ -40,7 +47,8 @@ or browser CDN is required in production.
    `.pdfproject` containing source PDFs, images, notes, page order and text edits.
    **Open project** restores it, including in a fresh browser tab.
 9. **Keyboard shortcuts**: V Select, T Text, E Edit existing, H Highlight,
-   C Comment, D Draw, B Box, L Line, Del delete, Esc cancel, +/− zoom,
+   C Comment, D Draw, B Box, L Line, Del delete, Esc cancel, +/− or Ctrl+scroll zoom,
+   arrows nudge, Ctrl/⌘ D duplicate, Ctrl/⌘ C / V copy and paste,
    PgUp/PgDn change page, Ctrl/⌘ Z undo (Shift or Ctrl+Y to redo), Ctrl/⌘ S save
    project, Ctrl/⌘ O open. The list is also under *Keyboard shortcuts* in the
    editor's right panel.
@@ -143,6 +151,10 @@ npm ci --ignore-scripts
 # Start the service on 127.0.0.1:8001 separately, then:
 CHROMIUM_PATH=/usr/bin/chromium npm run test:browser
 ```
+
+`npm run test:browser` runs `tests/browser/editor.cjs` (the full editor flow) and
+`tests/browser/features.cjs` (merge, extract, split, stamp, the signature pad and
+object duplication/copy tools).
 
 `EDITOR_URL` changes the test URL; `SCREENSHOT_DIR` changes its output directory.
 The test creates fictional PDFs and signature artwork, blocks all non-origin

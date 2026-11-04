@@ -14,6 +14,14 @@ were captured from the same service with the same fixtures.
 
 ![Merge workspace with two documents, thumbnails and page ranges](07-merge.png)
 
+## Split PDF
+
+![Split workspace with custom groups and part previews](12-split.png)
+
+## Page numbers & watermark
+
+![Stamp workspace with settings and live preview](13-stamp.png)
+
 ## Extract pages
 
 ![Extract workspace with a visual page picker and output choice](08-extract.png)
@@ -33,6 +41,14 @@ were captured from the same service with the same fixtures.
 ## Editor: signature-image placement
 
 ![Signature image with placement and resizing controls](03-editor-signature.png)
+
+## Editor: signature pad
+
+![Drawing a signature in the editor's signature pad](14-editor-signature-pad.png)
+
+## Editor: object actions
+
+![Placed signature with Duplicate and All pages actions](15-editor-object-actions.png)
 
 ## Editor: limited existing-text editing
 

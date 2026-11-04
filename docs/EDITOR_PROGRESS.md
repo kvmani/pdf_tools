@@ -43,6 +43,22 @@ force-push or overwrite concurrent work. Record blockers and partial work here.
    no external requests or JS errors; ad-hoc Playwright checks covered merge
    download (5 pages from 3 + `1-2`), extract PDF/ZIP/range errors, and no
    horizontal scrolling at 390px and 1024px.
+6. [complete] Feature round 2 (2026-11-04), pushed to main:
+   - `2d71099` Split tool (`services/split_service.py`, `/pdf_tools/split`, ZIP
+     output, 200-part limit) and Page numbers & watermark tool
+     (`services/stamp_service.py`, `/pdf_tools/stamp`). Stamp overlays are drawn in
+     visible (post-/Rotate) coordinates via `_display_transform`, honouring the crop
+     box; verified by rendering at 0/90/180/270°. Shared `js/tool_page.js` and
+     `_file_step.html`. Tests: `tests/test_split_stamp.py`.
+   - `7006efc` editor signature pad (`openSignaturePad`, trimmed transparent PNG,
+     session reuse), duplicate / All pages / copy-paste / arrow nudge /
+     Ctrl+scroll zoom. New `tests/browser/features.cjs`; `npm run test:browser`
+     runs both browser suites.
+   - Final commit: docs, help limits, gallery (15 screenshots), distinct Split icon.
+   Checks: 78 pytest cases; both browser suites pass with no external requests or
+   JS errors.
+   Ideas not yet done: optional dark theme; per-document rotation in Merge;
+   editing PDF metadata (title/author); reordering pages in Split by drag.
 
 ## Current architecture
 

@@ -11,7 +11,7 @@
     {% block head_extra %}{% endblock %}
 </head>
 <body>
-<header><nav><a class="brand" href="{{ url_for('pdf_tools.index') }}">PDF Tools <span>OFFICE SCIENTIFIC TOOLS</span></a><div class="nav-links"><a href="{{ url_for('pdf_tools.merge.form') }}">Merge PDFs</a><a href="{{ url_for('pdf_tools.extract.form') }}">Extract Pages</a><a href="{{ url_for('pdf_tools.help_page') }}">Help &amp; guide</a></div></nav></header>
+<header><nav><a class="brand" href="{{ url_for('pdf_tools.index') }}">PDF Tools <span>OFFICE SCIENTIFIC TOOLS</span></a><div class="nav-links"><a href="{{ url_for('pdf_tools.editor.workspace') }}">PDF Editor</a><a href="{{ url_for('pdf_tools.merge.form') }}">Merge PDFs</a><a href="{{ url_for('pdf_tools.extract.form') }}">Extract Pages</a><a href="{{ url_for('pdf_tools.help_page') }}">Help &amp; guide</a></div></nav></header>
 <main class="page-shell">{% block content %}{% endblock %}</main>
 </body>
 </html>

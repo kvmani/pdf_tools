@@ -16,8 +16,8 @@ maintained so future sessions can resume. See `AGENTS.md`.
 1. [complete] Record scope, persistence agreement and implementation plan.
 2. [complete] Validated document inspection/export API, native text-edit adapter,
    page operations, annotations and image/signature embedding; backend tests.
-3. [in progress] Offline browser workspace, editing tools, history, page tools and export.
-4. [pending] Browser end-to-end checks, offline asset audit, user/admin documentation.
+3. [complete] Offline browser workspace, editing tools, history, page tools and export.
+4. [in progress] Browser end-to-end checks, offline asset audit, user/admin documentation.
 
 ## Architecture decision
 
@@ -37,8 +37,20 @@ and local starting commit: `4fbe4d7`.
 
 ## Resume here
 
-Implement milestone 3. Backend endpoints are `/pdf_tools/editor/inspect` and
-`/pdf_tools/editor/export`; the workspace route currently has a placeholder template.
+Finish milestone 4. Backend endpoints are `/pdf_tools/editor/inspect` and
+`/pdf_tools/editor/export`; the workspace is at `/pdf_tools/editor`.
+The browser workspace now implements text, qualified existing-text edits, text/area
+highlighting, comments, ink, lines/boxes, images/signature images, page operations,
+history, export, and portable `.pdfproject` backup/restore. Page rotation rotates
+the entire page and its added marks together. Local PDF.js 6.5.438 replaces the old
+3.7.107 renderer, and Lucide SVG icons are bundled with licenses/provenance.
+`node tests/browser/editor.cjs` passes against the local updated service on port
+8001 using system Chromium/Playwright. It verifies annotations, signature placement,
+native text replacement, independent exported PDF semantics, project recovery,
+page duplication/rotation and undo/redo, with all external browser requests blocked
+and zero JavaScript errors. Representative screenshots are in `docs/screenshots`.
+Add reproducible test prerequisites and final user/admin documentation, broaden
+gesture/page-operation/reopening checks, and finish a clean working-tree push.
 `tests/test_editor.py` has 17 passing cases, including native text replacement,
 independent duplicate edits, overflow/input rejection, comments/highlights/signatures,
 and rendered placement on cropped pages at all four rotations. Native handles are

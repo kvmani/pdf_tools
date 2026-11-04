@@ -190,7 +190,7 @@ def export_document(sources, assets, manifest):
     specs = manifest.get('pages')
     if not isinstance(specs, list) or not 1 <= len(specs) <= MAX_PAGES:
         raise ValueError(f"Choose between 1 and {MAX_PAGES} pages to export.")
-    if not 1 <= len(sources) <= 20 or len(assets) > 100:
+    if not 0 <= len(sources) <= 20 or len(assets) > 100:
         raise ValueError("Too many source PDFs or images.")
     readers = [load_source(data) for data in sources]
     writer = PdfWriter()
@@ -217,7 +217,9 @@ def export_document(sources, assets, manifest):
         rotation = integer(spec.get('rotation', 0), 0, 270)
         if rotation % 90:
             raise ValueError("Page rotation must be a multiple of 90 degrees.")
-        width, height, matrix = _geometry(page, rotation)
+        # Marks are anchored in the source's visible coordinates. Rotating a
+        # working page rotates original content and all its added marks together.
+        width, height, matrix = _geometry(page, 0)
         page.rotate(rotation)
         marks = spec.get('marks', [])
         if not isinstance(marks, list) or any(not isinstance(m, dict) for m in marks):

@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const metadataUrl = form.dataset.metadataUrl;
     let activeRequest = null;
     let progressTimer = null;
-    if (window.pdfjsLib) window.pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf_tools/static/js/pdf.worker.min.js';
 
     function formatBytes(bytes) {
         if (!Number.isFinite(bytes)) return 'Unknown size';
@@ -109,8 +108,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const reader = new FileReader();
         reader.onload = async () => {
             try {
-                if (!window.pdfjsLib) throw new Error('PDF renderer unavailable');
-                const pdf = await window.pdfjsLib.getDocument({data: reader.result}).promise;
+                await window.pdfReady;
+                const pdf = await window.loadPDFDocument(new Uint8Array(reader.result)).promise;
                 const page = await pdf.getPage(1);
                 const viewport = page.getViewport({scale: 1.15});
                 const scale = Math.min(1, 360 / viewport.width);

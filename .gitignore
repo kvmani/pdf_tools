@@ -5,6 +5,6 @@ venv/
 *.egg-info/
 .coverage
 .idea/
-build/
+/build/
 dist/
 node_modules/

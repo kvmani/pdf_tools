@@ -5,15 +5,18 @@
 <script defer id="MathJax-script" src="{{ url_for('pdf_tools.static', filename='vendor/mathjax/tex-chtml-full.js') }}"></script>
 {% endblock %}
 {% block content %}
+{% from '_macros.html' import icon %}
 <section class="page-head">
-  <p class="eyebrow">PDF TOOLS / HELP &amp; GUIDE</p>
-  <h1>Page transformation, made auditable</h1>
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="{{ url_for('pdf_tools.index') }}">PDF Tools</a>{{ icon('chevron-right') }}<span>Help &amp; guide</span></nav>
+  <h1>How PDF Tools works</h1>
   <p class="lede">PDF Tools works with <strong>any PDF</strong> — reports, scans, forms, presentations, invoices, manuscripts, or drawings. It validates each document, reads its page tree, applies an explicit one-based selection and order, then writes a new document. Your file is processed on this office intranet server and is never stored or sent anywhere.</p>
 </section>
 
+<nav class="help-toc" aria-label="On this page"><a class="btn" href="#privacy">{{ icon('shield-check') }} Privacy</a><a class="btn" href="#algorithm">{{ icon('layers') }} Algorithm</a><a class="btn" href="#inputs">{{ icon('info') }} Inputs</a><a class="btn" href="#limits">{{ icon('circle-help') }} Limits</a><a class="btn" href="{{ url_for('pdf_tools.editor.workspace') }}">{{ icon('file-pen-line') }} Open the editor</a></nav>
+
 <img class="help-diagram" src="{{ url_for('pdf_tools.static', filename='pdf-workflow.svg') }}" alt="PDF validation, selection, assembly, and output workflow">
 
-<section class="privacy-panel">
+<section class="privacy-panel" id="privacy">
   <p class="eyebrow">YOUR DOCUMENTS, YOUR NETWORK</p>
   <h2>Privacy and data security</h2>
   <ul>
@@ -25,7 +28,7 @@
 </section>
 
 <section class="help-grid">
-  <article class="workspace-card">
+  <article class="workspace-card" id="algorithm">
     <h2>Algorithm</h2>
     <ol>
       <li>Confirm the PDF signature, encryption state, size, and readable page tree.</li>
@@ -40,7 +43,7 @@
     <p class="helper">Every range is inclusive, so a <code>1-3</code> selection contributes three pages.</p>
   </article>
 
-  <article class="workspace-card">
+  <article class="workspace-card" id="inputs">
     <h2>Critical inputs</h2>
     <dl>
       <dt>Source PDF</dt><dd>Any PDF, regardless of subject. Determines the available pages, metadata, encryption state, and processing cost.</dd>
@@ -52,7 +55,7 @@
     <p class="helper">Upload size is reported in binary mebibytes so the operational limit is unambiguous.</p>
   </article>
 
-  <article class="workspace-card">
+  <article class="workspace-card" id="limits">
     <h2>Limits and failure modes</h2>
     <ul>
       <li>Reordering does not edit page content or repair damaged PDFs.</li>

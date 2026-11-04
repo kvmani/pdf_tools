@@ -164,3 +164,4 @@
   .file-item .drag-handle{display:none}
   .file-range{grid-column:1/-1}
 }
+.page-shell [id]{scroll-margin-top:84px}

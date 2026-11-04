@@ -15,9 +15,11 @@
 <body data-icons="{{ url_for('pdf_tools.static', filename='vendor/lucide/icons.svg') }}">
 {% set nav = [
     ('pdf_tools.editor.workspace', 'file-pen-line', 'PDF Editor'),
-    ('pdf_tools.merge.form', 'files', 'Merge PDFs'),
-    ('pdf_tools.extract.form', 'scissors', 'Extract Pages'),
-    ('pdf_tools.help_page', 'circle-help', 'Help &amp; guide'),
+    ('pdf_tools.merge.form', 'files', 'Merge'),
+    ('pdf_tools.split.form', 'file-stack', 'Split'),
+    ('pdf_tools.extract.form', 'scissors', 'Extract'),
+    ('pdf_tools.stamp.form', 'stamp', 'Number &amp; stamp'),
+    ('pdf_tools.help_page', 'circle-help', 'Help'),
 ] %}
 <header class="app-header">
   <div class="app-header-inner">

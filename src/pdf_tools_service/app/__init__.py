@@ -23,11 +23,15 @@ pdf_tools_bp = Blueprint(
 from .controllers.merge_controller import merge_bp
 from .controllers.extract_controller import extract_bp
 from .controllers.editor_controller import editor_bp
+from .controllers.split_controller import split_bp
+from .controllers.stamp_controller import stamp_bp
 from .services.metrics import request_latency, request_count, metrics_response
 
 pdf_tools_bp.register_blueprint(merge_bp)
 pdf_tools_bp.register_blueprint(extract_bp)
 pdf_tools_bp.register_blueprint(editor_bp)
+pdf_tools_bp.register_blueprint(split_bp)
+pdf_tools_bp.register_blueprint(stamp_bp)
 
 
 @pdf_tools_bp.route("/")

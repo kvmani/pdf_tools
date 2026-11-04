@@ -1,0 +1,42 @@
+{% extends 'pdf_base.html' %}
+{% from '_macros.html' import icon %}
+{% block title %}Split PDF · PDF Tools{% endblock %}
+{% block head_extra %}
+<script defer src="{{ url_for('pdf_tools.static', filename='js/tool_page.js') }}"></script>
+<script defer src="{{ url_for('pdf_tools.static', filename='js/split.js') }}"></script>
+{% endblock %}
+{% block content %}
+<section class="page-head">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="{{ url_for('pdf_tools.index') }}">PDF Tools</a>{{ icon('chevron-right') }}<span>Split</span></nav>
+  <h1>Split a PDF</h1>
+  <p class="lede">Break one document into several smaller PDFs: equal chunks, one file per page, or your own groups. You get a single ZIP download.</p>
+</section>
+<form class="workspace-card" id="split-form" method="post" enctype="multipart/form-data" action="{{ url_for('pdf_tools.split.split') }}" novalidate>
+  <div class="form-section">
+    <h2 class="section-title"><span class="step">1</span>Choose a PDF</h2>
+    {% include '_file_step.html' %}
+  </div>
+  <div class="form-section">
+    <h2 class="section-title"><span class="step">2</span>How should it be split?</h2>
+    <div class="option-list" role="radiogroup" aria-label="Split method">
+      <label class="option"><input type="radio" name="mode" value="every" checked>
+        <span class="option-body"><strong>Every <input class="input inline-number" id="every-n" type="number" min="1" value="1" aria-label="Pages per file"> pages</strong><small>Equal parts, for example every 10 pages. The last part may be shorter.</small></span></label>
+      <label class="option"><input type="radio" name="mode" value="each">
+        <span class="option-body"><strong>One file per page</strong><small>Each page becomes its own PDF.</small></span></label>
+      <label class="option"><input type="radio" name="mode" value="ranges">
+        <span class="option-body"><strong>Custom groups</strong><small>Separate files with semicolons. Example: <code>1-3; 4-8; 9, 12</code></small>
+        <input class="input" id="groups" type="text" placeholder="1-3; 4-8; 9, 12" aria-label="Custom page groups" autocomplete="off"></span></label>
+    </div>
+  </div>
+  <div class="form-section">
+    <h2 class="section-title"><span class="step">3</span>Check the result</h2>
+    <p class="helper" id="plan-summary">Choose a PDF to see the files that will be created.</p>
+    <div class="part-grid" id="part-grid" aria-live="polite"></div>
+  </div>
+  <div class="form-actions">
+    <span class="summary">Files are named after the original, with their page numbers.</span>
+    <span class="spacer"></span>
+    <button class="btn btn-primary btn-lg" type="submit">{{ icon('download') }}<span>Split and download ZIP</span></button>
+  </div>
+</form>
+{% endblock %}

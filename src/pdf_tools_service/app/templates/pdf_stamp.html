@@ -1,0 +1,61 @@
+{% extends 'pdf_base.html' %}
+{% from '_macros.html' import icon %}
+{% block title %}Page numbers &amp; watermark · PDF Tools{% endblock %}
+{% block head_extra %}
+<script defer src="{{ url_for('pdf_tools.static', filename='js/tool_page.js') }}"></script>
+<script defer src="{{ url_for('pdf_tools.static', filename='js/stamp.js') }}"></script>
+{% endblock %}
+{% block content %}
+<section class="page-head">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="{{ url_for('pdf_tools.index') }}">PDF Tools</a>{{ icon('chevron-right') }}<span>Page numbers &amp; watermark</span></nav>
+  <h1>Page numbers &amp; watermark</h1>
+  <p class="lede">Number the pages of a document and stamp a diagonal watermark such as DRAFT or CONFIDENTIAL. The preview shows the result before you download.</p>
+</section>
+<form class="workspace-card" id="stamp-form" method="post" enctype="multipart/form-data" action="{{ url_for('pdf_tools.stamp.stamp') }}" novalidate>
+  <div class="form-section">
+    <h2 class="section-title"><span class="step">1</span>Choose a PDF</h2>
+    {% include '_file_step.html' %}
+  </div>
+  <div class="stamp-layout">
+    <div class="stamp-settings">
+      <fieldset class="form-section toggle-section">
+        <legend class="section-title"><span class="step">2</span><label class="switch"><input type="checkbox" name="numbers" value="1" checked><span>Page numbers</span></label></legend>
+        <div class="settings-grid">
+          <div class="field"><label class="field-label" for="number-format">Format</label>
+            <select class="input" id="number-format" name="number_format"><option value="page_of">Page 1 of 10</option><option value="page">Page 1</option><option value="n_of">1 / 10</option><option value="n">1</option></select></div>
+          <div class="field"><span class="field-label" id="position-label">Position</span>
+            <div class="position-picker" role="radiogroup" aria-labelledby="position-label">
+              {% for pos, label in [('top-left','Top left'),('top-center','Top centre'),('top-right','Top right'),('bottom-left','Bottom left'),('bottom-center','Bottom centre'),('bottom-right','Bottom right')] %}
+              <label title="{{ label }}"><input type="radio" name="position" value="{{ pos }}"{% if pos == 'bottom-center' %} checked{% endif %} aria-label="{{ label }}"><span></span></label>
+              {% endfor %}
+            </div></div>
+          <div class="field"><label class="field-label" for="start">First number</label><input class="input" id="start" name="start" type="number" min="0" max="99999" value="1"></div>
+          <div class="field"><label class="field-label" for="font-size">Text size (pt)</label><input class="input" id="font-size" name="font_size" type="number" min="6" max="48" value="10"></div>
+        </div>
+      </fieldset>
+      <fieldset class="form-section toggle-section">
+        <legend class="section-title"><span class="step">3</span><label class="switch"><input type="checkbox" name="use_watermark" value="1"><span>Watermark</span></label></legend>
+        <div class="settings-grid">
+          <div class="field wide-field"><label class="field-label" for="watermark">Text</label><input class="input" id="watermark" name="watermark" type="text" maxlength="60" value="CONFIDENTIAL" autocomplete="off">
+            <div class="chip-row" aria-label="Suggestions">{% for word in ['DRAFT','CONFIDENTIAL','INTERNAL','COPY','APPROVED'] %}<button type="button" class="chip" data-word="{{ word }}">{{ word }}</button>{% endfor %}</div></div>
+          <div class="field wide-field"><label class="field-label" for="opacity">Strength <output id="opacity-value">15%</output></label><input id="opacity" name="watermark_opacity" type="range" min="5" max="60" value="15"></div>
+        </div>
+      </fieldset>
+      <div class="form-section">
+        <h2 class="section-title"><span class="step">4</span>Which pages?</h2>
+        <div class="field form-row"><label class="field-label" for="stamp-pages">Pages to stamp</label><input class="input" id="stamp-pages" name="pages" type="text" value="all" placeholder="all, or e.g. 2-12" autocomplete="off"><span class="field-hint">Tip: use <code>2-12</code> to skip a cover page. Numbering starts at “First number” on the first stamped page.</span></div>
+      </div>
+    </div>
+    <aside class="stamp-preview" aria-label="Preview">
+      <p class="panel-label">Preview</p>
+      <div class="preview-page" id="preview-page"><div class="preview-empty">Choose a PDF to preview</div><canvas id="preview-canvas" hidden></canvas><span class="preview-watermark" id="preview-watermark" hidden></span><span class="preview-number" id="preview-number" hidden></span></div>
+      <div class="preview-nav"><button class="btn btn-icon" type="button" id="preview-prev" aria-label="Previous stamped page">{{ icon('chevron-left') }}</button><span id="preview-label">—</span><button class="btn btn-icon" type="button" id="preview-next" aria-label="Next stamped page">{{ icon('chevron-right') }}</button></div>
+    </aside>
+  </div>
+  <div class="form-actions">
+    <span class="summary">Numbers and watermarks use standard PDF fonts and become part of the page.</span>
+    <span class="spacer"></span>
+    <button class="btn btn-primary btn-lg" type="submit">{{ icon('download') }}<span>Apply and download</span></button>
+  </div>
+</form>
+{% endblock %}

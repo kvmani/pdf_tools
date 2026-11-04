@@ -1,0 +1,12 @@
+{% from '_macros.html' import icon %}
+<label class="drop-zone" data-drop>
+  <span class="drop-icon">{{ icon('upload') }}</span>
+  <strong>Drop a PDF here</strong>
+  <span>or <span class="link">browse your computer</span> · processed in memory, never stored</span>
+  <input type="file" name="file" accept="application/pdf,.pdf">
+</label>
+<div class="file-chip" data-chip hidden>
+  <span class="chip-icon">{{ icon('file-text') }}</span>
+  <div class="chip-text"><strong data-name></strong><span data-meta></span></div>
+  <button class="btn" type="button" data-change>Choose another</button>
+</div>

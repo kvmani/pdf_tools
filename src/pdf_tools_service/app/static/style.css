@@ -47,7 +47,8 @@
 .drop-zone span{color:var(--muted);font-size:14px}
 .drop-zone .link{color:var(--primary);font-weight:650;text-decoration:underline;text-underline-offset:2px}
 .drop-zone input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
-.drop-zone.compact{min-height:0;flex-direction:row;gap:12px;padding:14px 18px;justify-content:flex-start;text-align:left}
+.drop-zone.compact{min-height:0;flex-direction:row;gap:12px;padding:12px 18px;justify-content:center}
+.drop-zone.compact strong{font-size:14.5px}
 .drop-zone.compact .drop-icon{width:36px;height:36px;margin:0}
 
 .form-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)}

@@ -1,6 +1,10 @@
 {
   "name": "pdf-tools-browser-tests",
   "private": true,
-  "scripts": {"test:browser": "node tests/browser/editor.cjs"},
-  "devDependencies": {"playwright": "1.62.1"}
+  "scripts": {
+    "test:browser": "node tests/browser/editor.cjs && node tests/browser/features.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
 }

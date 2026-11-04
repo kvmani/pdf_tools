@@ -267,6 +267,8 @@ function properties() {
     const fields = new Set(editing ? ['text','actions'] : mark ? [...markFields[mark.type] || [], 'actions'] : toolFields[tool] || []);
     for (const node of document.querySelectorAll('[data-field]')) node.hidden = !fields.has(node.dataset.field);
     $('delete-object').hidden = !mark;
+    $('duplicate-object').disabled = !mark || busy;
+    $('copy-all-pages').disabled = !mark || busy || pages.length < 2 || mark.type === 'highlight';
     $('stroke-value').textContent = $('stroke').value;
     $('apply').disabled = !selected || busy;
     $('delete-object').disabled = !mark || busy;
@@ -302,7 +304,7 @@ $('paper').addEventListener('pointerdown', e => {
         const w=Math.min(180,baseWidth-x),h=Math.min(w/pendingImage.ratio,baseHeight-y);
         if (w<5 || h<5) return;
         const mark={type:pendingImage.kind,asset:pendingImage.key,x,y,w:Math.min(w,h*pendingImage.ratio),h};
-        pendingImage=null;chooseTool('select');addMark(mark);notify('Image placed. Drag it or use the corner handle to resize.');return;
+        pendingImage=null;chooseTool('select');addMark(mark);notify(`${mark.type==='signature'?'Signature':'Image'} placed. Drag it, use the corner handle to resize, or use All pages to repeat it on every page.`);return;
     }
     const target=e.target.closest('[data-id]'), resize=e.target.closest('[data-resize]');
     if (tool==='select') {
@@ -402,18 +404,22 @@ for(const [id,delta] of [['move-up',-1],['move-down',1]])$(id).onclick=()=>{if(c
 for(const [id,delta] of [['previous',-1],['next',1]])$(id).onclick=()=>{if(!busy&&active+delta>=0&&active+delta<pages.length){active+=delta;selected=null;refresh();}};
 for(const [id,factor] of [['zoom-in',1.2],['zoom-out',1/1.2]])$(id).onclick=()=>{zoom=Math.max(.25,Math.min(2.5,zoom*factor));refresh();};
 $('fit').onclick=()=>{const width=current()?.rotation%180?baseHeight:baseWidth;zoom=Math.max(.25,Math.min(2,($('work-area').clientWidth-65)/width));refresh();};
-for(const [id,kind] of [['image','image'],['signature','signature']])$(id).onclick=()=>{if(!current())return notify('Open a PDF or add a blank page first.');assetKind=kind;$('image-input').click();};
-$('image-input').onchange=async e=>{
-    const file=e.target.files[0];e.target.value='';if(!file)return;
+$('image').onclick=()=>{if(!current())return notify('Open a PDF or add a blank page first.');assetKind='image';$('image-input').click();};
+$('signature').onclick=()=>{if(!current())return notify('Open a PDF or add a blank page first.');assetKind='signature';openSignaturePad();};
+async function addAsset(file,kind){
     try{
         if(Object.keys(assets).length>=100||file.size>5*1024*1024)throw new Error('Choose a PNG/JPEG image smaller than 5 MiB.');
         if(!['image/png','image/jpeg'].includes(file.type))throw new Error('Use a PNG or JPEG image.');
         const bytes=new Uint8Array(await file.arrayBuffer()),url=URL.createObjectURL(new Blob([bytes],{type:file.type}));
         const image=new Image();image.src=url;await image.decode();
         if(image.naturalWidth*image.naturalHeight>16_000_000){URL.revokeObjectURL(url);throw new Error('Image exceeds 16 million pixels.');}
-        const key=`asset-${uid()}`;assets[key]={bytes,url,mime:file.type,name:file.name};pendingImage={key,ratio:image.naturalWidth/image.naturalHeight,kind:assetKind};chooseTool('select');notify(`Click the page to place your ${assetKind==='signature'?'signature image':'image'}. Its original background is preserved; transparent PNG works best.`);
+        const key=`asset-${uid()}`,ratio=image.naturalWidth/image.naturalHeight;
+        assets[key]={bytes,url,mime:file.type,name:file.name,kind,ratio};
+        pendingImage={key,ratio,kind};chooseTool('select');
+        notify(`Click the page to place the ${kind==='signature'?'signature':'image'}. Press Esc to cancel.`);
     }catch(error){fail(error);}
-};
+}
+$('image-input').onchange=e=>{const file=e.target.files[0];e.target.value='';if($('signature-dialog').open)$('signature-dialog').close();if(file)addAsset(file,assetKind);};
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),30000);}
 async function exportPDF(single=false){
     if(!current()||busy)return;busy=true;notify('Preparing your PDF…','busy');refresh();
@@ -470,7 +476,7 @@ $('project-input').onchange=async e=>{
 };
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
 document.addEventListener('keydown',e=>{
-    if(e.target.closest('input,textarea,select'))return;
+    if(e.target.closest('input,textarea,select,dialog')||$('signature-dialog').open)return;
     if(e.ctrlKey||e.metaKey){const k=e.key.toLowerCase();if(k==='z'){e.preventDefault();history(e.shiftKey?'redo':'undo');}if(k==='y'){e.preventDefault();history('redo');}if(k==='s'){e.preventDefault();$('save-project').click();}if(k==='o'){e.preventDefault();$('open').click();}return;}
     if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();deleteSelected();}
     if(e.key==='Escape'){pendingImage=null;endGesture(true);chooseTool('select');}
@@ -495,3 +501,96 @@ $('stroke').addEventListener('input',()=>{$('stroke-value').textContent=$('strok
         if(files.length)openFiles(files);else notify('Only PDF files can be opened here. Use Image or Signature for pictures.','error');});
 }
 refresh();
+
+// ---- Signature pad: draw a signature and place it as a transparent PNG image.
+const pad = {strokes: [], drawing: null};
+function padContext(){return $('signature-pad').getContext('2d');}
+function padColor(){return document.querySelector('input[name="ink"]:checked').value;}
+function drawStroke(ctx,stroke,scale=1,ox=0,oy=0){
+    const pts=stroke.points;ctx.strokeStyle=stroke.color;ctx.fillStyle=stroke.color;ctx.lineWidth=stroke.width*scale;ctx.lineCap='round';ctx.lineJoin='round';
+    if(pts.length===1){ctx.beginPath();ctx.arc((pts[0][0]-ox)*scale,(pts[0][1]-oy)*scale,stroke.width*scale/2,0,Math.PI*2);ctx.fill();return;}
+    ctx.beginPath();ctx.moveTo((pts[0][0]-ox)*scale,(pts[0][1]-oy)*scale);
+    for(let k=1;k<pts.length-1;k++){const mx=(pts[k][0]+pts[k+1][0])/2,my=(pts[k][1]+pts[k+1][1])/2;ctx.quadraticCurveTo((pts[k][0]-ox)*scale,(pts[k][1]-oy)*scale,(mx-ox)*scale,(my-oy)*scale);}
+    const last=pts.at(-1);ctx.lineTo((last[0]-ox)*scale,(last[1]-oy)*scale);ctx.stroke();
+}
+function redrawPad(){
+    const c=$('signature-pad'),ctx=padContext();ctx.clearRect(0,0,c.width,c.height);
+    for(const stroke of pad.strokes)drawStroke(ctx,stroke);
+    $('sig-use').disabled=!pad.strokes.length;$('sig-undo').disabled=!pad.strokes.length;$('sig-clear').disabled=!pad.strokes.length;
+    $('pad-hint').hidden=pad.strokes.length>0;
+}
+function padPoint(e){const c=$('signature-pad'),r=c.getBoundingClientRect();return [(e.clientX-r.left)*c.width/r.width,(e.clientY-r.top)*c.height/r.height];}
+$('signature-pad').addEventListener('pointerdown',e=>{if(e.button!==0)return;e.preventDefault();$('signature-pad').setPointerCapture(e.pointerId);pad.drawing={color:padColor(),width:Number($('sig-width').value)*2,points:[padPoint(e)]};pad.strokes.push(pad.drawing);redrawPad();});
+$('signature-pad').addEventListener('pointermove',e=>{if(!pad.drawing)return;const pt=padPoint(e),last=pad.drawing.points.at(-1);if(Math.hypot(pt[0]-last[0],pt[1]-last[1])>1.5&&pad.drawing.points.length<4000){pad.drawing.points.push(pt);redrawPad();}});
+for(const name of ['pointerup','pointercancel'])$('signature-pad').addEventListener(name,()=>{pad.drawing=null;});
+$('sig-clear').onclick=()=>{pad.strokes=[];redrawPad();};
+$('sig-undo').onclick=()=>{pad.strokes.pop();redrawPad();};
+$('sig-upload').onclick=()=>{assetKind='signature';$('image-input').click();};
+$('sig-use').onclick=async()=>{
+    if(!pad.strokes.length)return;
+    const all=pad.strokes.flatMap(st=>st.points.map(pt=>[pt[0],pt[1],st.width]));
+    const margin=Math.max(...all.map(a=>a[2]))+4;
+    const x0=Math.max(0,Math.min(...all.map(a=>a[0]))-margin),y0=Math.max(0,Math.min(...all.map(a=>a[1]))-margin);
+    const x1=Math.max(...all.map(a=>a[0]))+margin,y1=Math.max(...all.map(a=>a[1]))+margin;
+    const scale=2,out=document.createElement('canvas');out.width=Math.ceil((x1-x0)*scale);out.height=Math.ceil((y1-y0)*scale);
+    const ctx=out.getContext('2d');for(const stroke of pad.strokes)drawStroke(ctx,stroke,scale,x0,y0);
+    const blob=await new Promise(resolve=>out.toBlob(resolve,'image/png'));
+    $('signature-dialog').close();pad.strokes=[];redrawPad();
+    await addAsset(new File([blob],'drawn-signature.png',{type:'image/png'}),'signature');
+};
+function openSignaturePad(){
+    pad.strokes=[];redrawPad();
+    const recent=Object.entries(assets).filter(([,a])=>a.kind==='signature');
+    $('recent-list').replaceChildren();
+    for(const [key,a] of recent.slice(-6)){
+        const b=document.createElement('button');b.type='button';b.className='recent-item';b.title='Place this signature again';
+        const img=document.createElement('img');img.src=a.url;img.alt='Previously used signature';b.append(img);
+        b.onclick=()=>{$('signature-dialog').close();pendingImage={key,ratio:a.ratio||3,kind:'signature'};chooseTool('select');notify('Click the page to place the signature. Press Esc to cancel.');};
+        $('recent-list').append(b);
+    }
+    $('recent-signatures').hidden=!recent.length;
+    $('signature-dialog').showModal();
+}
+
+// ---- Object helpers: duplicate, copy to all pages, clipboard and nudging.
+let clipboard=null;
+function pageSize(model){
+    if(model.source===null)return {w:model.width,h:model.height};
+    const info=sources[model.source].info.pages[model.page],c=info.crop,w=c[2]-c[0],h=c[3]-c[1];
+    return info.rotation%180?{w:h,h:w}:{w,h};
+}
+function placedCopy(mark,size,dx=0,dy=0){
+    if(mark.w>size.w||mark.h>size.h)return null;
+    const copy=clone(mark);copy.id=uid();
+    const x=Math.max(0,Math.min(size.w-mark.w,mark.x+dx)),y=Math.max(0,Math.min(size.h-mark.h,mark.y+dy));
+    if(copy.points)copy.points=copy.points.map(pt=>[pt[0]+x-mark.x,pt[1]+y-mark.y]);
+    copy.x=x;copy.y=y;return copy;
+}
+function duplicateSelected(){
+    const mark=selectedMark();if(!mark||busy)return;
+    const copy=placedCopy(mark,pageSize(current()),12,12);if(!copy)return;
+    remember();current().marks.push(copy);selected={kind:'mark',id:copy.id};refresh();notify('Object duplicated.');
+}
+$('duplicate-object').onclick=duplicateSelected;
+$('copy-all-pages').onclick=()=>{
+    const mark=selectedMark();if(!mark||busy||mark.type==='highlight')return;
+    remember();let placed=0,skipped=0;
+    pages.forEach((model,index)=>{if(index===active)return;const copy=placedCopy(mark,pageSize(model));if(copy&&model.marks.length<2000){model.marks.push(copy);placed++;}else skipped++;});
+    refresh();notify(`Copied to ${placed} other ${placed===1?'page':'pages'}${skipped?`; ${skipped} skipped because the object does not fit`:''}. Undo removes them all.`);
+};
+function nudge(dx,dy){
+    const mark=selectedMark();if(!mark||busy||!current())return;
+    const size=pageSize(current()),x=Math.max(0,Math.min(size.w-mark.w,mark.x+dx)),y=Math.max(0,Math.min(size.h-mark.h,mark.y+dy));
+    if(x===mark.x&&y===mark.y)return;
+    remember();if(mark.points)mark.points=mark.points.map(pt=>[pt[0]+x-mark.x,pt[1]+y-mark.y]);mark.x=x;mark.y=y;refresh();
+}
+document.addEventListener('keydown',e=>{
+    if(e.target.closest('input,textarea,select,dialog')||busy)return;
+    const k=e.key.toLowerCase(),mod=e.ctrlKey||e.metaKey;
+    if(mod&&k==='d'&&selectedMark()){e.preventDefault();duplicateSelected();}
+    if(mod&&k==='c'&&selectedMark()&&!String(window.getSelection())){clipboard=clone(selectedMark());notify('Object copied. Press Ctrl/⌘ V to paste, on this or another page.');}
+    if(mod&&k==='v'&&clipboard&&current()){e.preventDefault();const same=current().marks.some(m=>m.x===clipboard.x&&m.y===clipboard.y);const copy=placedCopy(clipboard,pageSize(current()),same?12:0,same?12:0);if(copy){remember();current().marks.push(copy);clipboard=clone(copy);selected={kind:'mark',id:copy.id};refresh();notify('Object pasted.');}else notify('The copied object does not fit on this page.','error');}
+    const arrows={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
+    if(!mod&&arrows[e.key]&&selectedMark()){e.preventDefault();const step=e.shiftKey?10:1;nudge(arrows[e.key][0]*step,arrows[e.key][1]*step);}
+});
+$('work-area').addEventListener('wheel',e=>{if(!(e.ctrlKey||e.metaKey)||!pages.length)return;e.preventDefault();zoom=Math.max(.25,Math.min(2.5,zoom*(e.deltaY<0?1.1:1/1.1)));refresh();},{passive:false});

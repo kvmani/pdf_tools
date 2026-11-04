@@ -1,3 +1,52 @@
 {% extends 'pdf_base.html' %}
+{% from '_macros.html' import icon %}
 {% block title %}Extract Pages · PDF Tools{% endblock %}
-{% block content %}<section class="page-head"><p class="eyebrow">PDF TOOLS / SELECT</p><h1>Extract pages</h1><p class="lede">Create a smaller PDF from selected pages, or export those pages as images.</p></section><form class="workspace-card" id="extract-form" method="post" enctype="multipart/form-data" action="{{ url_for('pdf_tools.extract.extract') }}"><div class="drop-zone"><strong>Choose a PDF</strong><span>PDF files are processed locally in memory.</span><input type="file" name="file" accept="application/pdf" required></div><div class="form-row"><label for="page-range">Pages to extract</label><input id="page-range" type="text" name="range" placeholder="e.g., 1-5, 8" value="1" title="Pages to extract"></div><div class="check-grid"><label><input type="checkbox" name="preview" value="1"> Return a preview response</label><label><input type="checkbox" name="as_images" value="1"> Export pages as images</label></div><div class="form-actions"><button class="button button-primary" type="submit">Extract and download →</button></div></form><p class="helper">The default result is a downloadable PDF. Choose image export only when you need raster pages.</p>{% endblock %}
+{% block content %}
+<section class="page-head">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="{{ url_for('pdf_tools.index') }}">PDF Tools</a>{{ icon('chevron-right') }}<span>Extract</span></nav>
+  <h1>Extract pages</h1>
+  <p class="lede">Create a smaller PDF from selected pages, or save those pages as PNG images. Click thumbnails to choose pages, or type a range.</p>
+</section>
+<form class="workspace-card" id="extract-form" method="post" enctype="multipart/form-data" action="{{ url_for('pdf_tools.extract.extract') }}" novalidate>
+  <div class="form-section">
+    <h2 class="section-title"><span class="step">1</span>Choose a PDF</h2>
+    <label class="drop-zone" id="extract-drop">
+      <span class="drop-icon">{{ icon('upload') }}</span>
+      <strong>Drop a PDF here</strong>
+      <span>or <span class="link">browse your computer</span> · processed in memory, never stored</span>
+      <input id="extract-file" type="file" name="file" accept="application/pdf,.pdf">
+    </label>
+    <div class="file-chip" id="extract-chip" hidden>
+      <span class="chip-icon">{{ icon('file-text') }}</span>
+      <div class="chip-text"><strong id="chip-name"></strong><span id="chip-meta"></span></div>
+      <button class="btn" type="button" id="change-file">Choose another</button>
+    </div>
+  </div>
+  <div class="form-section">
+    <h2 class="section-title"><span class="step">2</span>Select pages</h2>
+    <div class="selection-bar">
+      <div class="field">
+        <label class="field-label" for="page-range">Pages to extract</label>
+        <input class="input" id="page-range" type="text" name="range" placeholder="e.g. 1-5, 8" value="1" title="Pages to extract" autocomplete="off">
+      </div>
+      <button class="btn" type="button" id="select-all">{{ icon('check') }} Select all</button>
+      <button class="btn btn-ghost" type="button" id="select-none">Clear</button>
+      <span class="count" id="selection-count" aria-live="polite"></span>
+    </div>
+    <div class="page-empty" id="page-empty">Choose a PDF to see its pages here.</div>
+    <div class="page-grid" id="page-grid" aria-label="Pages"></div>
+  </div>
+  <div class="form-section">
+    <h2 class="section-title"><span class="step">3</span>Choose an output</h2>
+    <div class="segmented" role="radiogroup" aria-label="Output format">
+      <label>{{ icon('file-text') }}<input type="radio" name="output" value="pdf" checked><span><strong>PDF document</strong><small>Keeps text selectable and sharp</small></span></label>
+      <label>{{ icon('images') }}<input type="radio" name="output" value="png"><span><strong>PNG images</strong><small>One image per page, in a ZIP</small></span></label>
+    </div>
+  </div>
+  <div class="form-actions">
+    <span class="summary">The default result is a downloadable PDF. Choose image export only when you need raster pages.</span>
+    <span class="spacer"></span>
+    <button class="btn btn-primary btn-lg" type="submit">{{ icon('download') }}<span>Extract and download</span></button>
+  </div>
+</form>
+{% endblock %}

@@ -57,8 +57,28 @@ force-push or overwrite concurrent work. Record blockers and partial work here.
    - Final commit: docs, help limits, gallery (15 screenshots), distinct Split icon.
    Checks: 78 pytest cases; both browser suites pass with no external requests or
    JS errors.
-   Ideas not yet done: optional dark theme; per-document rotation in Merge;
-   editing PDF metadata (title/author); reordering pages in Split by drag.
+   Ideas not yet done: optional dark theme; editing PDF metadata (title/author);
+   reordering pages in Split by drag.
+7. [complete] Release 0.3.0 (2026-11-05):
+   - `e648b3b` deployment readiness: `_version.py` single source (health, footer,
+     release workflow), portal "All tools" link (`main.home` or
+     `PDF_TOOLS_PORTAL_URL`), client-side upload-limit checks, Help page CSP fix
+     for MathJax, Save/Open project tooltips.
+   - `b9401b3` editor Close and tool-page Start over (`js/reset.js`), Merge
+     per-document rotation (`rotate_file<N>`), Extract keep/remove mode.
+   - Release commit adds `.github/workflows/release.yml` from
+     ml_server_deploy/tools/templates/component-release.yml (PRODUCT "PDF Tools",
+     VERSION_FILE `src/pdf_tools_service/_version.py`) and tags `v0.3.0`.
+   - Portal check: kvmani/ml_server (main, 1e3fb4b) with this tree on PYTHONPATH and
+     tabular_ml v0.2.0: 135 portal tests pass; both browser suites pass through the
+     portal at /pdf_tools/. Under the portal CSP (no 'wasm-unsafe-eval') PDF.js
+     logs one warning and uses its JavaScript JBIG2/JPEG 2000 fallbacks; a JPX test
+     image rendered fully.
+   - Deployment: ml_server_deploy pins `pdf_tools.ref`; bump it to `v0.3.0` (and
+     `suite_version`). The dependency gate reads pyproject dependencies, so
+     pypdfium2==5.14.0 and reportlab 4.x enter the shared environment and must be
+     on the office mirror. ml_server's own requirements.txt still names the v0.2.0
+     archive (used only for its own CI; the suite build drops GitHub pins).
 
 ## Current architecture
 

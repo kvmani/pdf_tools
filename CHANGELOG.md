@@ -2,6 +2,25 @@
 
 ## [0.3.0] - 2026-11-05
 
+Requires two new Python packages in the deployed environment, declared in
+`pyproject.toml`: `pypdfium2==5.14.0` (binary wheel) and `reportlab>=4.4,<5`.
+Both must be available from the office package mirror.
+
+- Privacy: **Close** in the editor and **Start over** on the tool pages clear every
+  file, image and setting from the browser tab in one step.
+- Merge: rotate each document by 90° steps before merging.
+- Extract: choose **Keep selected pages** or **Remove selected pages**.
+- Pages show the PDF Tools version and the server's upload limit; oversized files
+  are refused in the browser with a clear message; `/pdf_tools/health` reports the
+  version from `pdf_tools_service/_version.py`.
+- Inside the ML Server portal, an **All tools** link returns to the portal home.
+- Clearer tooltips on Save project, Open project and Download PDF.
+- Fixed: Help page equations were mis-laid-out on the standalone server because its
+  security policy blocked MathJax's stylesheet.
+- PDF Editor (new since 0.2.0): text, comments, highlights, drawings, images,
+  page organisation, qualified existing-text replacement, undo/redo and editable
+  `.pdfproject` copies.
+
 - New **Split PDF** tool (`/pdf_tools/split`): equal parts, one file per page or
   custom groups, previewed with thumbnails and downloaded as one ZIP.
 - New **Page numbers & watermark** tool (`/pdf_tools/stamp`): four number formats,

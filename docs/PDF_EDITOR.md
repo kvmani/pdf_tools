@@ -45,7 +45,8 @@ or browser CDN is required in production.
 8. **Download PDF** creates the finished document; **Extract page** downloads only
    the current page, including its edits. **Save project** downloads an editable
    `.pdfproject` containing source PDFs, images, notes, page order and text edits.
-   **Open project** restores it, including in a fresh browser tab.
+   **Open project** restores it, including in a fresh browser tab. **Close**
+   clears the document, images, history and clipboard from the tab.
 9. **Keyboard shortcuts**: V Select, T Text, E Edit existing, H Highlight,
    C Comment, D Draw, B Box, L Line, Del delete, Esc cancel, +/− or Ctrl+scroll zoom,
    arrows nudge, Ctrl/⌘ D duplicate, Ctrl/⌘ C / V copy and paste,

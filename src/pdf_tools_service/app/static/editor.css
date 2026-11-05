@@ -191,3 +191,5 @@ footer a{color:var(--primary)}
 .dialog-actions{display:flex;flex-wrap:wrap;gap:8px}
 .dialog-actions .spacer{flex:1}
 @media (max-width:560px){.pen-width{margin-left:0}.dialog-actions .spacer{display:none}.dialog-actions button{flex:1}}
+.header-actions .ghost{border-color:transparent;background:transparent;color:var(--text-2)}
+.header-actions .ghost:hover:not(:disabled){background:var(--surface-3);color:var(--text)}

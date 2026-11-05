@@ -24,9 +24,13 @@
   </div>
   <div class="form-section">
     <h2 class="section-title"><span class="step">2</span>Select pages</h2>
+    <div class="mode-switch" role="radiogroup" aria-label="What to do with the selected pages">
+      <label><input type="radio" name="selection_mode" value="keep" checked><span>{{ icon('check') }} Keep selected pages</span></label>
+      <label><input type="radio" name="selection_mode" value="remove"><span>{{ icon('file-minus') }} Remove selected pages</span></label>
+    </div>
     <div class="selection-bar">
       <div class="field">
-        <label class="field-label" for="page-range">Pages to extract</label>
+        <label class="field-label" for="page-range" id="range-label">Pages to keep</label>
         <input class="input" id="page-range" type="text" name="range" placeholder="e.g. 1-5, 8" value="1" title="Pages to extract" autocomplete="off">
       </div>
       <button class="btn" type="button" id="select-all">{{ icon('check') }} Select all</button>
@@ -45,6 +49,7 @@
   </div>
   <div class="form-actions">
     <span class="summary">The default result is a downloadable PDF. Choose image export only when you need raster pages.</span>
+    <button class="btn btn-ghost" type="button" data-reset hidden title="Clear the files and settings from this page">{{ icon('refresh-ccw') }} Start over</button>
     <span class="spacer"></span>
     <button class="btn btn-primary btn-lg" type="submit">{{ icon('download') }}<span>Extract and download</span></button>
   </div>

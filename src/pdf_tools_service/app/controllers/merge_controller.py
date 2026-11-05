@@ -36,6 +36,7 @@ class MergeController(BaseController):
             """Handle merge requests and return merged PDF as downloadable file."""
 
             files: List[Tuple[BytesIO, str, str]] = []
+            rotations: List[int] = []
             idx = 0
             try:
                 while True:
@@ -44,6 +45,10 @@ class MergeController(BaseController):
                         break
                     range_str = request.form.get(f"range_file{idx}", "all")
                     files.append((BytesIO(file.read()), range_str, file.filename or f"Document {idx + 1}"))
+                    try:
+                        rotations.append(int(request.form.get(f"rotate_file{idx}", "0") or 0) % 360)
+                    except ValueError:
+                        raise ValueError("Rotation must be 0, 90, 180 or 270 degrees for each document.") from None
                     idx += 1
                 if not files:
                     return jsonify({"success": False, "error": "At least one PDF is required"}), 400
@@ -51,7 +56,7 @@ class MergeController(BaseController):
                 order_param = request.form.get("order")
                 order = [int(x) for x in order_param.split(",")] if order_param else None
                 output_name = request.form.get("output_name", "merged.pdf")
-                output = self.service.process(files, order=order, output_name=output_name)
+                output = self.service.process(files, order=order, output_name=output_name, rotations=rotations)
 
                 from flask import send_file
                 output.seek(0)

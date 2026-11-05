@@ -27,9 +27,15 @@ const py = code => execFileSync('.venv/bin/python', ['-c', code]).toString().tri
   await page.locator('#merge-picker').setInputFiles([sample, sample]);
   await page.waitForFunction(() => [...document.querySelectorAll('.file-item')].every(i => i.dataset.metadataState === 'ready'));
   await page.locator('.range-input').nth(1).fill('1-2');
+  await page.locator('.file-item').nth(1).locator('.rotate').click();
+  assert.equal(await page.locator('.file-item').nth(1).locator('.rotation-note').innerText(), 'Rotated 90°');
   let file = await save(submit, 'merged.pdf');
-  assert.equal(py(`from pypdf import PdfReader; print(len(PdfReader(${JSON.stringify(file)}).pages))`), '5');
-  console.log('PASS merge');
+  assert.equal(py(`from pypdf import PdfReader; print([p.rotation for p in PdfReader(${JSON.stringify(file)}).pages])`), '[0, 0, 0, 90, 90]');
+  // Start over clears the page.
+  await page.locator('[data-reset]').click();
+  await page.waitForLoadState('load');
+  assert.equal(await page.locator('.file-item').count(), 0);
+  console.log('PASS merge with rotation, start over');
 
   // Extract: thumbnail selection drives the range; PNG export produces a ZIP.
   await page.goto(`${root}/extract`);
@@ -42,7 +48,17 @@ const py = code => execFileSync('.venv/bin/python', ['-c', code]).toString().tri
   await page.locator('input[value=png]').check({force: true});
   file = await save(submit, 'pages.zip');
   assert.equal(py(`import zipfile; print(len(zipfile.ZipFile(${JSON.stringify(file)}).namelist()))`), '2');
-  console.log('PASS extract');
+  // Remove mode: drop page 2, keep pages 1 and 3.
+  await page.locator('input[value=pdf]').check({force: true});
+  await page.locator('input[value=remove]').check({force: true});
+  await page.locator('#page-range').fill('2');
+  assert.match(await page.locator('#selection-count').innerText(), /1 page removed · 2 pages kept/);
+  file = await save(submit, 'removed.pdf');
+  assert.equal(py(`from pypdf import PdfReader; print(len(PdfReader(${JSON.stringify(file)}).pages))`), '2');
+  await page.locator('#page-range').fill('1-3');
+  await submit();
+  assert.match(await page.locator('#workspace-error').innerText(), /remove every page/);
+  console.log('PASS extract keep, remove and PNG');
 
   // Oversized files are refused in the browser, before upload, when the server sets a limit.
   await page.goto(`${root}/split`);
@@ -122,6 +138,12 @@ const py = code => execFileSync('.venv/bin/python', ['-c', code]).toString().tri
   const images = py(`import pypdfium2 as p, pypdfium2.raw as r; d = p.PdfDocument(${JSON.stringify(file)}); print([sum(1 for _ in pg.get_objects(filter=[r.FPDF_PAGEOBJ_IMAGE], max_depth=4)) for pg in d])`);
   assert.equal(images, '[1, 2, 1]');
   console.log('PASS editor signature pad, nudge, duplicate, copy to all pages, paste and zoom');
+  // Close clears everything from the tab.
+  await page.locator('#close-doc').click();
+  await page.waitForFunction(() => document.getElementById('page-count').textContent === '0');
+  assert.match(await page.locator('#notice').innerText(), /Nothing from it remains/);
+  assert.equal(await page.locator('#empty').isVisible(), true);
+  console.log('PASS editor close');
 
   assert.deepEqual(errors, []);
   assert.deepEqual(external, []);

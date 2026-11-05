@@ -54,9 +54,26 @@ document.addEventListener('DOMContentLoaded', () => {
         return parts.join(', ');
     }
 
+    const removing = () => form.querySelector('input[name="selection_mode"]:checked')?.value === 'remove';
+    const plural = n => `${n} ${n === 1 ? 'page' : 'pages'}`;
+
     function paintSelection() {
         for (const thumb of grid.children) thumb.setAttribute('aria-pressed', String(selected.has(Number(thumb.dataset.page))));
-        countLabel.textContent = pageCount ? `${selected.size} of ${pageCount} ${pageCount === 1 ? 'page' : 'pages'} selected` : '';
+        grid.classList.toggle('removing', removing());
+        for (const use of grid.querySelectorAll('.check use')) use.setAttribute('href', `${iconUrl}#${removing() ? 'x' : 'check'}`);
+        $('range-label').textContent = removing() ? 'Pages to remove' : 'Pages to keep';
+        if (!pageCount) { countLabel.textContent = ''; return; }
+        countLabel.textContent = removing()
+            ? `${plural(selected.size)} removed · ${plural(pageCount - selected.size)} kept`
+            : `${selected.size} of ${plural(pageCount)} selected`;
+    }
+
+    // The pages that end up in the result, in output order.
+    function outputPages() {
+        const chosen = parseRange(rangeInput.value, pageCount);
+        if (!removing()) return chosen;
+        const drop = new Set(chosen);
+        return Array.from({length: pageCount}, (_, i) => i + 1).filter(n => !drop.has(n));
     }
 
     function syncFromRange() {
@@ -148,6 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $('select-all').addEventListener('click', () => pageCount && setSelection(Array.from({length: pageCount}, (_, i) => i + 1)));
     $('select-none').addEventListener('click', () => { if (pageCount) { selected = new Set(); rangeInput.value = ''; paintSelection(); } });
     rangeInput.addEventListener('input', syncFromRange);
+    form.querySelectorAll('input[name="selection_mode"]').forEach(radio => radio.addEventListener('change', paintSelection));
 
     function startProgress(label, estimate) {
         let box = $('job-progress');
@@ -210,9 +228,10 @@ document.addEventListener('DOMContentLoaded', () => {
         message('');
         if (!file) { message('Choose a PDF before extracting pages.'); return; }
         let pages;
-        try { pages = pageCount ? parseRange(rangeInput.value, pageCount) : null; }
+        try { pages = pageCount ? outputPages() : null; }
         catch (error) { message(error.message); rangeInput.focus(); return; }
-        if (pages && !pages.length) { message('Select at least one page.'); return; }
+        if (pages && !pages.length) { message(removing() ? 'That would remove every page. Leave at least one page.' : 'Select at least one page.'); return; }
+        if (!pageCount && removing()) { message('This PDF could not be read here, so pages cannot be removed. Use “Keep selected pages” with a range instead.'); return; }
         const asImages = form.querySelector('input[name="output"]:checked')?.value === 'png';
         if (asImages && !pdfDoc) { message('This PDF could not be opened for image export.'); return; }
         const estimate = Math.max(4, Math.ceil(file.size / (10 * 1024 * 1024)) + (asImages ? Math.ceil(pages.length / 4) : 0));
@@ -225,7 +244,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 const body = new FormData();
                 body.append('file', file, file.name);
-                body.append('range', rangeInput.value.trim() || 'all');
+                // Keep mode sends the range as typed, so a typed order such as 3, 1 is kept.
+                body.append('range', removing() ? formatRange(pages) : (rangeInput.value.trim() || 'all'));
                 const response = await fetch(form.action, {method: 'POST', body});
                 const contentType = response.headers.get('content-type') || '';
                 if (!response.ok || !contentType.includes('application/pdf')) {

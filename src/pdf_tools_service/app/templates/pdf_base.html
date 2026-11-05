@@ -10,6 +10,7 @@
     <script defer src="{{ url_for('pdf_tools.static', filename='js/browser_support.js') }}"></script>
     <script defer src="{{ url_for('pdf_tools.static', filename='js/preview.js') }}"></script>
     <script defer src="{{ url_for('pdf_tools.static', filename='js/extract.js') }}"></script>
+    <script defer src="{{ url_for('pdf_tools.static', filename='js/reset.js') }}"></script>
     {% block head_extra %}{% endblock %}
 </head>
 <body data-max-upload="{{ pdf_tools_max_upload }}" data-icons="{{ url_for('pdf_tools.static', filename='vendor/lucide/icons.svg') }}">

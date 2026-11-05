@@ -9,9 +9,9 @@ PDF Tools Service provides simple browser-based utilities for working with PDFs.
   Existing-text edits are deliberately restricted to supported standard-font text.
   See the [editor guide](docs/PDF_EDITOR.md) and [UI screenshots](docs/screenshots/README.md).
 
-- **Merge** any number of PDFs with optional page ranges, custom output filenames and drag‑and‑drop reordering.
+- **Merge** any number of PDFs with optional page ranges, per-document rotation, custom output filenames and drag‑and‑drop reordering.
 - **Split** one PDF at `/pdf_tools/split` into equal parts, single pages or custom groups, returned as a ZIP.
-- **Extract** selected pages from one PDF into a new document or export them as PNG images. Page thumbnails let you pick pages visually.
+- **Extract** selected pages from one PDF into a new document (or remove selected pages) or export them as PNG images. Page thumbnails let you pick pages visually.
 - **Page numbers & watermark** at `/pdf_tools/stamp`: number pages in six positions and four formats, and stamp a diagonal text watermark, with a live preview.
 - Minimal HTML interface served by Flask.
 - JSON responses so the tools can also be called programmatically.

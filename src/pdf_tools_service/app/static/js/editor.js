@@ -65,7 +65,7 @@ function refresh() {
     $('zoom-label').textContent = `${Math.round(zoom * 100)}%`;
     $('save-state').textContent = dirty ? 'Unsaved changes · Save a project to resume' : 'Project saved / no unsaved changes';
     $('undo').disabled = !undo.length || busy; $('redo').disabled = !redo.length || busy;
-    for (const id of ['export','save-project','extract','duplicate','remove-page','rotate','move-up','move-down','previous','next']) $(id).disabled = !pages.length || busy;
+    for (const id of ['close-doc','export','save-project','extract','duplicate','remove-page','rotate','move-up','move-down','previous','next']) $(id).disabled = !pages.length || busy;
     drawPageList(); properties();
     const token = ++generation;
     $('paper').dataset.rendering = 'true';
@@ -597,3 +597,25 @@ document.addEventListener('keydown',e=>{
     if(!mod&&arrows[e.key]&&selectedMark()){e.preventDefault();const step=e.shiftKey?10:1;nudge(arrows[e.key][0]*step,arrows[e.key][1]*step);}
 });
 $('work-area').addEventListener('wheel',e=>{if(!(e.ctrlKey||e.metaKey)||!pages.length)return;e.preventDefault();zoom=Math.max(.25,Math.min(2.5,zoom*(e.deltaY<0?1.1:1/1.1)));refresh();},{passive:false});
+
+// ---- Close: clear the document, images, history and clipboard from this tab.
+async function closeDocument(){
+    if(busy||!pages.length)return;
+    if(dirty&&!confirm('Close this document? Changes you have not downloaded will be lost. Files you already downloaded are not affected.'))return;
+    busy=true;
+    try{
+        ++generation;await rendering.catch(()=>{});textLayer?.cancel();textLayer=null;
+        for(const source of sources)await source.doc.loadingTask.destroy();
+        for(const asset of Object.values(assets))URL.revokeObjectURL(asset.url);
+        for(const doc of previewCache.values())await doc.loadingTask.destroy();
+        previewCache.clear();
+        sources=[];assets={};pages=[];active=0;selected=null;undo=[];redo=[];dirty=false;
+        pendingImage=null;clipboard=null;pad.strokes=[];searchQuery='';searchPage=-1;existingAnnotations=[];sourceViewport=null;
+        $('search-query').value='';$('object-text').value='';$('text-layer').replaceChildren();$('marks').replaceChildren();
+        const canvas=$('pdf-canvas');canvas.width=0;canvas.height=0;delete $('paper').dataset.ready;
+        $('document-name').textContent='A private space for your paperwork';
+    }finally{busy=false;}
+    chooseTool('select');refresh();
+    notify('Document closed. Nothing from it remains in this tab.');
+}
+$('close-doc').onclick=closeDocument;

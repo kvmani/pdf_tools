@@ -141,9 +141,9 @@ document.addEventListener('DOMContentLoaded', () => {
         wrapper.className = 'file-item'; wrapper.draggable = true; wrapper._file = file;
         wrapper.innerHTML = `<span class="drag-handle" title="Drag to reorder" aria-hidden="true">${icon('grip-vertical')}</span>
             <div class="file-preview"><canvas class="pdf-preview" aria-label="First page preview"></canvas></div>
-            <div class="file-details"><span class="file-number">Document</span><span class="filename"></span><span class="metadata">Checking…</span><input type="file" accept="application/pdf" hidden></div>
+            <div class="file-details"><span class="file-number">Document</span><span class="filename"></span><span class="metadata">Checking…</span><span class="rotation-note" hidden></span><input type="file" accept="application/pdf" hidden></div>
             <div class="file-range"><label>Pages</label><input class="input range-input" type="text" value="all" placeholder="all, or e.g. 1-3, 6"></div>
-            <div class="file-actions"><button type="button" class="btn btn-ghost up" title="Move up" aria-label="Move up">${icon('arrow-up')}</button><button type="button" class="btn btn-ghost down" title="Move down" aria-label="Move down">${icon('arrow-down')}</button><button type="button" class="btn btn-ghost btn-danger remove" title="Remove" aria-label="Remove">${icon('x')}</button></div>`;
+            <div class="file-actions"><button type="button" class="btn btn-ghost rotate" title="Rotate 90° clockwise" aria-label="Rotate 90 degrees clockwise">${icon('rotate-cw')}</button><button type="button" class="btn btn-ghost up" title="Move up" aria-label="Move up">${icon('arrow-up')}</button><button type="button" class="btn btn-ghost down" title="Move down" aria-label="Move down">${icon('arrow-down')}</button><button type="button" class="btn btn-ghost btn-danger remove" title="Remove" aria-label="Remove">${icon('x')}</button></div>`;
         const id = `range-${Math.random().toString(36).slice(2)}`;
         wrapper.querySelector('.file-range label').htmlFor = id;
         wrapper.querySelector('.range-input').id = id;
@@ -193,6 +193,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (button.classList.contains('up') && item.previousElementSibling) filesDiv.insertBefore(item, item.previousElementSibling);
         if (button.classList.contains('down') && item.nextElementSibling) filesDiv.insertBefore(item.nextElementSibling, item);
         if (button.classList.contains('remove')) item.remove();
+        if (button.classList.contains('rotate')) {
+            const turn = (Number(item.dataset.rotation || 0) + 90) % 360;
+            item.dataset.rotation = turn;
+            item.querySelector('.file-preview').dataset.rotation = turn;
+            const note = item.querySelector('.rotation-note');
+            note.textContent = turn ? `Rotated ${turn}°` : '';
+            note.hidden = !turn;
+        }
         renumber();
     });
     filesDiv.addEventListener('dragstart', event => { const item = event.target.closest('.file-item'); if (item) { item.classList.add('is-dragging'); event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', 'reorder'); } });
@@ -218,6 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
         items.forEach((item, idx) => {
             formData.set(`file${idx}`, item._file);
             formData.set(`range_file${idx}`, item.querySelector('.range-input').value.trim() || 'all');
+            formData.set(`rotate_file${idx}`, item.dataset.rotation || '0');
         });
         formData.set('order', items.map((_, idx) => idx).join(','));
         const totalBytes = items.reduce((sum, item) => sum + item._file.size, 0);

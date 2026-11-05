@@ -85,3 +85,8 @@ code{font-family:var(--mono);font-size:.88em;background:var(--surface-3);border:
 }
 [hidden]{display:none!important}
 @media (max-width:1080px) and (min-width:761px){.main-nav .icon{display:none}.main-nav a{padding:8px 9px}}
+.portal-link{display:inline-flex;align-items:center;gap:6px;margin-left:auto;padding:6px 10px;border:1px solid var(--border);border-radius:999px;color:var(--text-2);font-size:13px;font-weight:600;text-decoration:none}
+.portal-link:hover{border-color:var(--primary);color:var(--primary)}
+.portal-link .icon{width:15px;height:15px}
+.portal-link+.main-nav{margin-left:8px}
+@media (max-width:760px){.portal-link{margin-left:auto}}

@@ -12,7 +12,7 @@
     <script defer src="{{ url_for('pdf_tools.static', filename='js/extract.js') }}"></script>
     {% block head_extra %}{% endblock %}
 </head>
-<body data-icons="{{ url_for('pdf_tools.static', filename='vendor/lucide/icons.svg') }}">
+<body data-max-upload="{{ pdf_tools_max_upload }}" data-icons="{{ url_for('pdf_tools.static', filename='vendor/lucide/icons.svg') }}">
 {% set nav = [
     ('pdf_tools.editor.workspace', 'file-pen-line', 'PDF Editor'),
     ('pdf_tools.merge.form', 'files', 'Merge'),
@@ -27,12 +27,13 @@
       <span class="brand-mark">{{ icon('file-text') }}</span>
       <span>PDF Tools<small>Office intranet</small></span>
     </a>
+    {% if pdf_tools_portal_url %}<a class="portal-link" href="{{ pdf_tools_portal_url }}" title="Back to the ML Server portal">{{ icon('layout-grid') }}<span>All tools</span></a>{% endif %}
     <nav class="main-nav" aria-label="Main">
       {% for endpoint, glyph, label in nav %}<a href="{{ url_for(endpoint) }}"{% if request.endpoint == endpoint %} aria-current="page"{% endif %}>{{ icon(glyph) }}<span>{{ label|safe }}</span></a>{% endfor %}
     </nav>
   </div>
 </header>
 <main class="page-shell">{% block content %}{% endblock %}</main>
-<footer class="site-footer"><div>{{ icon('shield-check') }} Files are processed on this intranet server and never stored.</div><a href="{{ url_for('pdf_tools.help_page') }}">How it works</a></footer>
+<footer class="site-footer"><div>{{ icon('shield-check') }} Files are processed on this intranet server and never stored.</div><span class="footer-meta">PDF Tools v{{ pdf_tools_version }}{% if pdf_tools_max_upload %} · up to {{ (pdf_tools_max_upload / 1048576)|round(1)|replace('.0', '') }} MB per upload{% endif %} · <a href="{{ url_for('pdf_tools.help_page') }}">How it works</a></span></footer>
 </body>
 </html>

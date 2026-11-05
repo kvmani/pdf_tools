@@ -96,6 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
     async function chooseFile(next) {
         if (!next) return;
         if (!isPdf(next)) { message('Choose a PDF file.'); return; }
+        const limit = Number(document.body.dataset.maxUpload) || 0;
+        if (limit && next.size > limit) { message(`This file is ${formatBytes(next.size)}; this server accepts up to ${formatBytes(limit)} per upload. Split it or reduce its size first.`); return; }
         message('');
         const token = ++loadToken;
         file = next;

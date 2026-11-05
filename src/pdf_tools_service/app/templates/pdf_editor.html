@@ -5,16 +5,16 @@
 <link rel="stylesheet" href="{{ url_for('pdf_tools.static', filename='theme.css') }}">
 <link rel="stylesheet" href="{{ url_for('pdf_tools.static', filename='editor.css') }}">
 <script type="module" src="{{ url_for('pdf_tools.static', filename='js/editor.js') }}"></script>
-</head><body data-api="{{ url_for('pdf_tools.editor.workspace').rstrip('/') }}">
+</head><body data-max-upload="{{ pdf_tools_max_upload }}" data-api="{{ url_for('pdf_tools.editor.workspace').rstrip('/') }}">
 <header class="editor-header">
   <a class="brand" href="{{ url_for('pdf_tools.index') }}" title="Back to PDF Tools"><span class="brand-mark" data-icon="file-text"></span><span class="brand-name">PDF Tools</span></a>
   <span class="header-divider" aria-hidden="true"></span>
   <div class="document-title"><h1>PDF Editor</h1><span id="document-name">A private space for your paperwork</span></div>
   <div class="header-actions">
     <button id="open" data-icon="folder-open" title="Open a PDF (Ctrl/⌘ O)"><span class="label">Open PDF</span></button>
-    <button id="restore" data-icon="folder-up" title="Open a saved .pdfproject file"><span class="label">Open project</span></button>
-    <button id="save-project" data-icon="save" title="Save an editable project backup (Ctrl/⌘ S)"><span class="label">Save project</span></button>
-    <button id="export" class="primary" data-icon="download" title="Download the finished PDF"><span class="label">Download PDF</span></button>
+    <button id="restore" data-icon="folder-up" title="Open a .pdfproject file you saved earlier and continue editing where you left off"><span class="label">Open project</span></button>
+    <button id="save-project" data-icon="save" title="Download an editable copy (.pdfproject) so you can resume editing later. It contains your original PDF and any signatures: keep it private. (Ctrl/⌘ S)"><span class="label">Save project</span></button>
+    <button id="export" class="primary" data-icon="download" title="Download the finished PDF with all your changes"><span class="label">Download PDF</span></button>
   </div>
 </header>
 <input id="pdf-input" type="file" accept="application/pdf,.pdf" multiple hidden>
@@ -69,5 +69,5 @@
     <div class="dialog-actions"><button type="button" id="sig-upload" data-icon="image-plus">Upload image instead</button><span class="spacer"></span><button type="button" id="sig-undo" data-icon="undo-2">Undo stroke</button><button type="button" id="sig-clear" data-icon="eraser">Clear</button><button type="button" id="sig-use" class="primary" data-icon="check" disabled>Use signature</button></div>
   </form>
 </dialog>
-<footer><span class="footer-badge" data-icon="shield-check">Local first · air-gap ready</span><span id="save-state">No changes</span><a href="{{ url_for('pdf_tools.help_page') }}">PDF Tools guide</a></footer>
+<footer><span class="footer-badge" data-icon="shield-check">Local first · air-gap ready</span><span id="save-state">No changes</span><span class="footer-links">{% if pdf_tools_portal_url %}<a href="{{ pdf_tools_portal_url }}">All tools</a> · {% endif %}<a href="{{ url_for('pdf_tools.help_page') }}">PDF Tools guide</a> · v{{ pdf_tools_version }}</span></footer>
 </body></html>

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — 2026-11-04
+## [0.3.0] - 2026-11-05
 
 - New **Split PDF** tool (`/pdf_tools/split`): equal parts, one file per page or
   custom groups, previewed with thumbnails and downloaded as one ZIP.

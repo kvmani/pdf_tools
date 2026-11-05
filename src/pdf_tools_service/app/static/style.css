@@ -235,3 +235,4 @@ input[type=range]{accent-color:var(--primary)}
   .settings-grid{grid-template-columns:1fr}
 }
 .tool-card-muted{background:var(--surface-2);box-shadow:none}
+.footer-meta a{color:var(--primary)}

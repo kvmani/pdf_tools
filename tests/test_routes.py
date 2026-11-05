@@ -5,7 +5,8 @@ from pypdf import PdfReader
 def test_health_endpoint(client):
     resp = client.get('/pdf_tools/health')
     assert resp.status_code == 200
-    assert resp.get_json() == {"status": "ok", "tool_id": "pdf-tools", "version": "0.2.0"}
+    from pdf_tools_service._version import __version__
+    assert resp.get_json() == {"status": "ok", "tool_id": "pdf-tools", "version": __version__}
 
 
 def test_scientific_help_and_security_headers(client):

@@ -4,6 +4,11 @@ window.PdfToolPage = (() => {
     const formatBytes = bytes => bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
     const isPdf = f => f && (f.type === 'application/pdf' || /\.pdf$/i.test(f.name));
     const stem = name => (name || 'document').replace(/\.pdf$/i, '');
+    // The server's upload limit (bytes), or 0 when it sets none.
+    const maxUpload = () => Number(document.body.dataset.maxUpload) || 0;
+    const tooLarge = bytes => maxUpload() && bytes > maxUpload()
+        ? `This file is ${formatBytes(bytes)}; this server accepts up to ${formatBytes(maxUpload())} per upload. Split it or reduce its size first.`
+        : '';
 
     function setup({form, onFile}) {
         const input = form.querySelector('input[type="file"][name="file"]');
@@ -27,6 +32,7 @@ window.PdfToolPage = (() => {
         async function choose(file) {
             if (!file) return;
             if (!isPdf(file)) { message('Choose a PDF file.'); return; }
+            if (tooLarge(file.size)) { message(tooLarge(file.size)); return; }
             message('');
             const mine = ++token;
             const transfer = new DataTransfer(); transfer.items.add(file); input.files = transfer.files;
@@ -133,5 +139,5 @@ window.PdfToolPage = (() => {
         return pages;
     }
 
-    return {setup, parseRange, formatBytes, stem};
+    return {setup, parseRange, formatBytes, stem, tooLarge};
 })();

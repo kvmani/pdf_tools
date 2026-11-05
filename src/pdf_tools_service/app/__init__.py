@@ -5,7 +5,8 @@ from __future__ import annotations
 import json
 import os
 from io import BytesIO
-from flask import Flask, Blueprint, Response, render_template, jsonify, request
+from flask import Flask, Blueprint, Response, current_app, make_response, render_template, jsonify, request, url_for
+from .._version import __version__
 from .utils.errors import read_pdf, user_error
 
 
@@ -34,6 +35,20 @@ pdf_tools_bp.register_blueprint(split_bp)
 pdf_tools_bp.register_blueprint(stamp_bp)
 
 
+@pdf_tools_bp.context_processor
+def _tool_context() -> dict:
+    """Values every PDF Tools page needs: version, upload limit and portal link."""
+    portal_url = current_app.config.get("PDF_TOOLS_PORTAL_URL")
+    if not portal_url and "main.home" in current_app.view_functions:
+        # Mounted inside the ML Server portal: offer a way back to its home page.
+        portal_url = url_for("main.home")
+    return {
+        "pdf_tools_version": __version__,
+        "pdf_tools_max_upload": current_app.config.get("MAX_CONTENT_LENGTH") or 0,
+        "pdf_tools_portal_url": portal_url,
+    }
+
+
 @pdf_tools_bp.route("/")
 def index() -> str:
     """Render the landing page."""
@@ -43,13 +58,21 @@ def index() -> str:
 @pdf_tools_bp.route("/help")
 def help_page() -> str:
     """Explain page algorithms, inputs, privacy, and operational limits."""
-    return render_template("pdf_help.html")
+    response = make_response(render_template("pdf_help.html"))
+    # MathJax lays out equations with a stylesheet it injects at runtime, so this
+    # page (static, no user content) permits inline styles. Other pages do not.
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data: blob:; font-src 'self'; object-src 'none'; base-uri 'self'; "
+        "frame-ancestors 'self'"
+    )
+    return response
 
 
 @pdf_tools_bp.route("/health")
 def health():
     """Health check endpoint."""
-    return jsonify({"status": "ok", "tool_id": "pdf-tools", "version": "0.2.0"})
+    return jsonify({"status": "ok", "tool_id": "pdf-tools", "version": __version__})
 
 
 @pdf_tools_bp.route("/metadata", methods=["POST"])

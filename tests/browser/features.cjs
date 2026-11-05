@@ -44,6 +44,18 @@ const py = code => execFileSync('.venv/bin/python', ['-c', code]).toString().tri
   assert.equal(py(`import zipfile; print(len(zipfile.ZipFile(${JSON.stringify(file)}).namelist()))`), '2');
   console.log('PASS extract');
 
+  // Oversized files are refused in the browser, before upload, when the server sets a limit.
+  await page.goto(`${root}/split`);
+  assert.match(await page.locator('.site-footer').innerText(), /PDF Tools v\d+\.\d+\.\d+/);
+  const limit = Number(await page.evaluate(() => document.body.dataset.maxUpload)) || 0;
+  if (limit) {
+    const big = path.join(fixture, 'big.pdf');
+    fs.writeFileSync(big, Buffer.concat([fs.readFileSync(sample), Buffer.alloc(limit + 1024, 32)]));
+    await page.locator('input[name=file]').setInputFiles(big);
+    assert.match(await page.locator('.workspace-error').innerText(), /accepts up to/);
+    console.log('PASS upload limit message');
+  }
+
   // Split into custom groups.
   await page.goto(`${root}/split`);
   await page.locator('input[name=file]').setInputFiles(sample);

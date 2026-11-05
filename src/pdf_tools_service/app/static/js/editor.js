@@ -128,6 +128,9 @@ async function openFiles(files) {
     const loaded = [];
     try {
         if (sources.length + files.length > 20) throw new Error('A project supports up to 20 PDF sources.');
+        const limit = Number(document.body.dataset.maxUpload) || 0;
+        const total = [...sources.map(s => s.bytes.length), ...Object.values(assets).map(a => a.bytes.length), ...files.map(f => f.size)].reduce((a, b) => a + b, 0);
+        if (limit && total > limit) throw new Error(`Together your PDFs and images would be ${(total / 1048576).toFixed(1)} MB; this server accepts up to ${(limit / 1048576).toFixed(1)} MB per document. Use smaller files.`);
         for (const file of files) {
             const bytes = new Uint8Array(await file.arrayBuffer());
             const form = new FormData(); form.append('file', new Blob([bytes]), file.name);

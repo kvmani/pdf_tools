@@ -160,9 +160,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function addFiles(list) {
         clearFormError();
         const files = [...list];
-        const pdfs = files.filter(isPdf);
+        const limit = Number(document.body.dataset.maxUpload) || 0;
+        let used = [...filesDiv.children].reduce((sum, item) => sum + (item._file?.size || 0), 0);
+        const pdfs = [], oversized = [];
+        for (const file of files.filter(isPdf)) {
+            if (limit && used + file.size > limit) { oversized.push(file.name); continue; }
+            used += file.size; pdfs.push(file);
+        }
+        if (oversized.length) {
+            showFormError(`Not added: ${oversized.join(', ')}. All documents in one merge must total at most ${formatBytes(limit)} on this server.`);
+            if (!pdfs.length) return;
+        }
         const room = MAX_FILES - filesDiv.children.length;
         pdfs.slice(0, room).forEach(addFile);
+        if (oversized.length) return; // the size message above takes priority
         const skipped = files.length - pdfs.length;
         if (pdfs.length > room) showFormError(`Up to ${MAX_FILES} documents can be merged at once. ${pdfs.length - room} file(s) were not added.`);
         else if (skipped) showFormError(`${skipped} file(s) were skipped because they are not PDFs.`);

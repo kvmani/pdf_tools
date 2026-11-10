@@ -216,3 +216,21 @@ and push. Research outside the checkout is optional; these docs are sufficient.
 - Next: if the office still sees a failure after 0.3.1, the red notice's text
   identifies the cause (filter, proxy, cache or browser).
 
+
+## Office root cause found: the suite packager dropped PDF.js (2026-11-10)
+
+- The office failure was not in this repository's code. ml_server_deploy's
+  `tools/build_suite.py` excluded every folder named `build` (and `output`,
+  `dist`, `logs`, `tmp`) at any depth, so `vendor/pdfjs/build/` (0.3.0) and
+  `vendor/pdfjs/legacy/build/` (0.3.1) never reached the server. The editor
+  module's import of pdf.mjs returned 404, the module never ran: no icons, dead
+  open buttons, unhandled drops (Chrome opened the PDF itself). Running the
+  portal from the published suite 1.21.0 archive reproduced exactly that.
+- Fixed in ml_server_deploy (suite 1.22.0): those names are excluded only at a
+  component's top level, a tracked file missing from the archive fails the
+  build, and deployment health fetches the editor module and PDF.js files.
+- With the portal run from the published 1.22.0 archive in Chrome 134: both open
+  buttons and drag/drop pass, `editor.cjs` and `features.cjs` pass, and the
+  start-failure notice stays hidden (shown, naming the file, when one is blocked).
+- Lesson for future checks: verify against the deployable archive, not only the
+  checkout; `EDITOR_URL` lets the browser suites run against any deployment.

@@ -2,7 +2,7 @@
   "name": "pdf-tools-browser-tests",
   "private": true,
   "scripts": {
-    "test:browser": "node tests/browser/editor.cjs && node tests/browser/features.cjs"
+    "test:browser": "node tests/browser/upload.cjs && node tests/browser/editor.cjs && node tests/browser/features.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

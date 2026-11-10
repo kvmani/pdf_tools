@@ -14,7 +14,9 @@ retain their own terms; ship their notices with redistributed artifacts.
 
 `PROVENANCE.json` beside each browser bundle records its npm package, version,
 tarball URL and SHA-512 integrity. The tarballs were verified against npm integrity
-before vendoring. All necessary browser assets are served from the intranet.
+before vendoring. All necessary browser assets are served from the intranet. The runtime uses the
+official `legacy/build` modules (same verified tarball and version) to provide
+compatibility polyfills for older office browsers, including Chrome 134.
 
 Existing Flask/Pillow/pdf2image/WTForms/Waitress/Prometheus dependencies retain their
 existing licenses. No PyMuPDF, commercial PDF SDK, OCR engine or certificate service

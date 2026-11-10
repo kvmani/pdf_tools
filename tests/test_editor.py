@@ -189,3 +189,12 @@ def test_workspace_has_offline_assets_and_controls(client):
     worker = client.get('/pdf_tools/static/vendor/pdfjs/build/pdf.worker.mjs')
     assert worker.status_code == 200
     assert 'javascript' in worker.mimetype
+
+
+def test_module_mime_independent_of_host_registry(client, monkeypatch):
+    import mimetypes
+    monkeypatch.setitem(mimetypes.types_map, '.mjs', 'text/plain')
+    for asset in ('build/pdf.mjs', 'legacy/build/pdf.mjs', 'legacy/build/pdf.worker.mjs'):
+        response = client.get('/pdf_tools/static/vendor/pdfjs/' + asset)
+        assert response.status_code == 200
+        assert response.mimetype == 'text/javascript'

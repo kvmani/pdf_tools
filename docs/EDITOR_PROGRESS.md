@@ -167,3 +167,29 @@ and push. Research outside the checkout is optional; these docs are sufficient.
 - 10 MiB combined upload limit, 200 pages, 20 PDFs, 100 images, 2,000 marks. See the
   guide for pixel/stroke limits and supported file types.
 - Highlights/boxes are not redaction. Signature images are ordinary visual marks.
+
+## Office HTTP upload compatibility fix (2026-11-10)
+
+- Missing generated icons plus inactive file chooser/drop controls indicates that
+  the editor module did not initialize. A screenshot alone cannot distinguish
+  bad module MIME types, missing assets, and JavaScript compatibility errors.
+- Force text/javascript on blueprint .mjs responses independent of Windows MIME
+  registry mappings (nosniff otherwise makes module loading fail). Regression
+  test overrides the MIME mapping to text/plain.
+- Use official PDF.js 6.5.438 legacy main/worker modules with compatibility
+  polyfills; verified upstream tarball against recorded SHA-512 integrity.
+  No CDN/runtime external dependency added.
+- Targeted browser upload tests click both chooser buttons and supply files via
+  the emitted filechooser; dispatch file drag/drop and require three rendered
+  pages, unchanged URL, one tab, and no JavaScript errors. Test uses untrusted
+  office.test HTTP mapped locally, including a context with newer APIs removed.
+- 84 Python tests pass; targeted upload checks pass in both contexts. Exact
+  Chrome 134 binary download returned HTTP 403; tests use installed Chromium
+  with selected absent APIs simulated, not an exact 32-bit Chrome certification.
+- Office deployment must update package/static files and restart the service,
+  then hard-refresh Chrome. Reverse proxies serving static files directly must
+  also return JavaScript MIME types for .mjs files.
+- Both existing browser suites also pass, including independent exported-PDF
+  verification and merge/extract/split/stamp/signature flows. Deliberately serving
+  the module as text/plain reproduced the missing icons and unbound chooser
+  observed in the screenshot; the office server's actual response remains unobserved.

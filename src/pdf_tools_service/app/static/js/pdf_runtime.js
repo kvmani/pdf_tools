@@ -1,6 +1,6 @@
-import * as pdfjs from '../vendor/pdfjs/build/pdf.mjs';
+import * as pdfjs from '../vendor/pdfjs/legacy/build/pdf.mjs';
 const root = new URL('../vendor/pdfjs/', import.meta.url).href;
-pdfjs.GlobalWorkerOptions.workerSrc = `${root}build/pdf.worker.mjs`;
+pdfjs.GlobalWorkerOptions.workerSrc = `${root}legacy/build/pdf.worker.mjs`;
 export { pdfjs };
 export function loadDocument(data) {
     return pdfjs.getDocument({data, cMapUrl: `${root}cmaps/`, cMapPacked: true,

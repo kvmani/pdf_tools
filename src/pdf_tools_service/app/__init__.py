@@ -144,6 +144,10 @@ def create_app(config_path: str | None = None) -> Flask:
             request_count.labels(g._metric_path, response.status_code).inc()
         else:
             request_count.labels(request.path, response.status_code).inc()
+        # Windows MIME registries can label .mjs as text/plain. Browsers reject
+        # module scripts with that type, preventing all editor initialization.
+        if request.endpoint == "pdf_tools.static" and request.path.endswith(".mjs"):
+            response.mimetype = "text/javascript"
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
         response.headers.setdefault("Referrer-Policy", "no-referrer")
         response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")

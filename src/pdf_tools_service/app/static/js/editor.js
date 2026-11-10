@@ -619,3 +619,5 @@ async function closeDocument(){
     notify('Document closed. Nothing from it remains in this tab.');
 }
 $('close-doc').onclick=closeDocument;
+// Last line: every control above is bound. editor_watchdog.js looks for this.
+document.body.dataset.editorReady = 'true';

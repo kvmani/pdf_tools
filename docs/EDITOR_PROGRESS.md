@@ -193,3 +193,26 @@ and push. Research outside the checkout is optional; these docs are sufficient.
   verification and merge/extract/split/stamp/signature flows. Deliberately serving
   the module as text/plain reproduced the missing icons and unbound chooser
   observed in the screenshot; the office server's actual response remains unobserved.
+
+## Real Chrome 134 verification and start-failure notice (2026-11-10, release 0.3.1)
+
+- Tested in Chrome for Testing 134.0.6998.35 (the office's 134.0.6998.36 line),
+  plain HTTP on a non-localhost name, mounted in the ML Server portal 1.5.0 under
+  gunicorn on Python 3.12, as the office runs it.
+- 0.3.0 reproduced the failure: both open buttons and drag-and-drop never render
+  the document; the editor reports `hashOriginal.toHex is not a function`
+  (`Uint8Array.prototype.toHex`, Chrome 140+). With the legacy PDF.js build all
+  three pass, and `upload.cjs`, `editor.cjs` and `features.cjs` all pass in Chrome
+  134 (the last two against the portal via EDITOR_URL).
+- The office screenshot (no icons at all) means the editor module never ran
+  there, an earlier failure than reproduced here. On Ubuntu with Python 3.12 .mjs
+  is already served as text/javascript, so MIME is not the office cause. Added
+  `editor_watchdog.js`: a classic script that shows a red notice with the errors
+  and per-file HTTP status/type if `body[data-editor-ready]` (set on the last
+  line of editor.js) is missing 4 s after load. Verified: hidden when the editor
+  starts; shown, naming the blocked file, when pdf.mjs is refused.
+- The .mjs MIME override moved from the standalone app to the blueprint, so it
+  also applies in the portal (test: blueprint on a bare Flask app).
+- Next: if the office still sees a failure after 0.3.1, the red notice's text
+  identifies the cause (filter, proxy, cache or browser).
+

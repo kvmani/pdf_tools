@@ -198,3 +198,28 @@ def test_module_mime_independent_of_host_registry(client, monkeypatch):
         response = client.get('/pdf_tools/static/vendor/pdfjs/' + asset)
         assert response.status_code == 200
         assert response.mimetype == 'text/javascript'
+
+
+def test_module_mime_also_when_mounted_in_another_app(monkeypatch):
+    """The ML Server portal registers pdf_tools_bp on its own Flask app."""
+    import mimetypes
+    from flask import Flask
+    from pdf_tools_service.app import pdf_tools_bp
+
+    host = Flask('portal_like')
+    host.config['PDF_TOOLS_MAX_UPLOAD_MB'] = 10
+    host.register_blueprint(pdf_tools_bp)
+    monkeypatch.setitem(mimetypes.types_map, '.mjs', 'text/plain')
+    response = host.test_client().get('/pdf_tools/static/vendor/pdfjs/legacy/build/pdf.mjs')
+    assert response.status_code == 200
+    assert response.mimetype == 'text/javascript'
+
+
+def test_editor_reports_a_failed_start(client):
+    page = client.get('/pdf_tools/editor/').get_data(as_text=True)
+    watchdog, module = page.index('js/editor_watchdog.js'), page.index('js/editor.js')
+    assert watchdog < module, 'the watchdog must load first to see module errors'
+    script = client.get('/pdf_tools/static/js/editor_watchdog.js')
+    assert script.status_code == 200 and 'data-editor-ready' in script.get_data(as_text=True)
+    editor = client.get('/pdf_tools/static/js/editor.js').get_data(as_text=True).rstrip()
+    assert editor.endswith("document.body.dataset.editorReady = 'true';")

@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.3.1] - 2026-11-10
+
+### Fixed
+
+- **PDF Editor did not open files in Chrome 134** (the office browser): "Choose a
+  PDF", "Open PDF" and drag-and-drop did nothing, and a dropped file opened in a
+  new tab. PDF.js 6.5's modern build uses JavaScript features newer than Chrome
+  134 (`Uint8Array.prototype.toHex` and others); the editor now loads the official
+  PDF.js **legacy** build of the same version, which supplies them. Verified in
+  Chrome for Testing 134.0.6998.35, over plain HTTP, mounted in the ML Server
+  portal: both buttons, drag-and-drop, export and every other tool.
+- `.mjs` files are served as JavaScript whatever the host's MIME table says, now
+  also when the portal mounts these routes in-process (previously only in the
+  standalone app).
+
+### Added
+
+- If the editor ever fails to start, a red notice says so on the page, naming the
+  errors and what the browser received for each file the editor needs, instead of
+  leaving buttons that silently do nothing.
+
 ## [0.3.0] - 2026-11-05
 
 ### Deployment

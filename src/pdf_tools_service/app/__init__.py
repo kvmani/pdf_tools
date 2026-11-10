@@ -35,6 +35,20 @@ pdf_tools_bp.register_blueprint(split_bp)
 pdf_tools_bp.register_blueprint(stamp_bp)
 
 
+@pdf_tools_bp.after_request
+def _module_scripts_are_javascript(response: Response) -> Response:
+    """Serve .mjs as JavaScript whatever the host's MIME table says.
+
+    Windows MIME registries can label .mjs as text/plain, and browsers refuse a
+    module script of that type (nosniff), so the editor never starts. Registered
+    on the blueprint, not the standalone app, so it also holds when the ML Server
+    portal mounts these routes in-process.
+    """
+    if request.endpoint == "pdf_tools.static" and request.path.endswith(".mjs"):
+        response.mimetype = "text/javascript"
+    return response
+
+
 @pdf_tools_bp.context_processor
 def _tool_context() -> dict:
     """Values every PDF Tools page needs: version, upload limit and portal link."""
@@ -144,10 +158,6 @@ def create_app(config_path: str | None = None) -> Flask:
             request_count.labels(g._metric_path, response.status_code).inc()
         else:
             request_count.labels(request.path, response.status_code).inc()
-        # Windows MIME registries can label .mjs as text/plain. Browsers reject
-        # module scripts with that type, preventing all editor initialization.
-        if request.endpoint == "pdf_tools.static" and request.path.endswith(".mjs"):
-            response.mimetype = "text/javascript"
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
         response.headers.setdefault("Referrer-Policy", "no-referrer")
         response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")

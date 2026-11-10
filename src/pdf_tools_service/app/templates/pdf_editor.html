@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="{{ url_for('pdf_tools.static', filename='vendor/pdfjs/web/pdf_viewer.css') }}">
 <link rel="stylesheet" href="{{ url_for('pdf_tools.static', filename='theme.css') }}">
 <link rel="stylesheet" href="{{ url_for('pdf_tools.static', filename='editor.css') }}">
+<script src="{{ url_for('pdf_tools.static', filename='js/editor_watchdog.js') }}"></script>
 <script type="module" src="{{ url_for('pdf_tools.static', filename='js/editor.js') }}"></script>
 </head><body data-max-upload="{{ pdf_tools_max_upload }}" data-api="{{ url_for('pdf_tools.editor.workspace').rstrip('/') }}">
 <header class="editor-header">
